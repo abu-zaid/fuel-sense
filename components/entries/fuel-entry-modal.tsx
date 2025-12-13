@@ -36,29 +36,6 @@ export default function FuelEntryModal({ vehicleId, onSuccess, editEntry, isEdit
 
   return (
     <>
-      {/* Plus Button - Mobile and Desktop */}
-      <motion.div 
-        className="fixed bottom-28 right-4 md:bottom-24 md:right-8 z-40 safe-area-inset-bottom"
-        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0.5rem)' }}
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.2 }}
-      >
-        <Button
-          onClick={() => setOpen(true)}
-          size="lg"
-          className="rounded-full h-16 w-16 shadow-lg hover:shadow-2xl active:scale-95 transition-all duration-300 ease-in-out bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 group touch-manipulation"
-          type="button"
-        >
-          <motion.div
-            animate={{ rotate: [0, 90, 360] }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
-          >
-            <Plus className="w-8 h-8" />
-          </motion.div>
-        </Button>
-      </motion.div>
-
       {/* Modal */}
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-h-[90vh] overflow-y-auto rounded-2xl">

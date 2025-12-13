@@ -316,16 +316,6 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
             <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-3">
               <Button
-                onClick={() => window.location.href = '/add-fuel'}
-                variant="outline"
-                className="w-full gap-2 border-2 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-700"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Add Fuel
-              </Button>
-              <Button
                 onClick={() => {
                   const link = document.createElement('a');
                   link.href = 'https://github.com/abu-zaid/fuel-sense';
