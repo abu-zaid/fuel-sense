@@ -56,4 +56,6 @@ export interface MonthlyCost {
 export interface EfficiencyData {
   date: string;
   efficiency: number;
+  distance: number;
+  fuel_used: number;
 }

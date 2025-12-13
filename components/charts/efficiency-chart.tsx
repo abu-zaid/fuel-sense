@@ -41,10 +41,12 @@ export default function EfficiencyChart({
       setData(result);
 
       if (result.length > 0) {
-        const avg =
-          result.reduce((sum, item) => sum + Number(item.efficiency), 0) /
-          result.length;
-
+        // Calculate average efficiency properly: total distance / total fuel used
+        // This matches the calculation in getDashboardStats
+        const totalDistance = result.reduce((sum, item) => sum + Number(item.distance || 0), 0);
+        const totalFuelUsed = result.reduce((sum, item) => sum + Number(item.fuel_used || 0), 0);
+        
+        const avg = totalFuelUsed > 0 ? totalDistance / totalFuelUsed : 0;
         setAvgEfficiency(Number(avg.toFixed(2)));
       }
     } catch (error) {

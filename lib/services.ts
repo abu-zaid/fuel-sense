@@ -204,7 +204,7 @@ export async function getMonthlyCosts(vehicleId?: string): Promise<MonthlyCost[]
 export async function getEfficiencyData(vehicleId?: string): Promise<EfficiencyData[]> {
   let query = supabase
     .from('fuel_entries')
-    .select('efficiency, created_at')
+    .select('efficiency, distance, fuel_used, created_at')
     .order('created_at', { ascending: true });
 
   if (vehicleId) {
@@ -220,6 +220,8 @@ export async function getEfficiencyData(vehicleId?: string): Promise<EfficiencyD
   return entries.map((entry) => ({
     date: new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     efficiency: Math.round(entry.efficiency * 100) / 100,
+    distance: entry.distance,
+    fuel_used: entry.fuel_used,
   }));
 }
 
