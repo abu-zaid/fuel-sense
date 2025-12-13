@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AddVehicleDialog from '@/components/vehicles/add-vehicle-dialog';
+import { hapticToggle, hapticButton } from '@/lib/haptic';
 import type { Vehicle } from '@/lib/types';
 import { ChevronDown, Plus, Bike, Car } from 'lucide-react';
 
@@ -44,7 +45,10 @@ export default function VehicleSelector({
             {vehicles.map((vehicle, index) => (
               <DropdownMenuItem 
                 key={vehicle.id} 
-                onClick={() => onSelect(vehicle)}
+                onClick={() => {
+                  hapticToggle();
+                  onSelect(vehicle);
+                }}
                 className="cursor-pointer transition-all duration-300 ease-in-out hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg"
               >
                 {vehicle.type === 'car' ? <Car className="w-4 h-4 mr-2" /> : <Bike className="w-4 h-4 mr-2" />}
@@ -56,7 +60,10 @@ export default function VehicleSelector({
       )}
 
       <Button 
-        onClick={() => setShowAddDialog(true)} 
+        onClick={() => {
+          hapticButton();
+          setShowAddDialog(true);
+        }} 
         variant="ghost" 
         size="sm" 
         className="gap-2 transition-all duration-300 ease-in-out hover:bg-blue-50 dark:hover:bg-slate-800 hover:scale-105 rounded-xl"

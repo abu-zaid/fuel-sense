@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Plus, Car, Bike } from 'lucide-react';
 import { addVehicle } from '@/lib/services';
+import { hapticSuccess, hapticError, hapticToggle } from '@/lib/haptic';
 
 interface AddVehicleDialogProps {
   open: boolean;
@@ -37,11 +38,13 @@ export default function AddVehicleDialog({ open, onOpenChange, onSuccess }: AddV
 
     try {
       await addVehicle(name, type);
+      hapticSuccess();
       setName('');
       setType('car');
       onOpenChange(false);
       onSuccess();
     } catch (err) {
+      hapticError();
       setError(err instanceof Error ? err.message : 'Failed to add vehicle');
     } finally {
       setLoading(false);
@@ -78,11 +81,17 @@ export default function AddVehicleDialog({ open, onOpenChange, onSuccess }: AddV
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
-                <DropdownMenuItem onClick={() => setType('car')} className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={() => {
+                  hapticToggle();
+                  setType('car');
+                }} className="gap-2 cursor-pointer">
                   <Car className="w-4 h-4" />
                   Car
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setType('bike')} className="gap-2 cursor-pointer">
+                <DropdownMenuItem onClick={() => {
+                  hapticToggle();
+                  setType('bike');
+                }} className="gap-2 cursor-pointer">
                   <Bike className="w-4 h-4" />
                   Bike
                 </DropdownMenuItem>

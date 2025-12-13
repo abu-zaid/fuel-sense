@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { hapticButton, hapticSuccess } from '@/lib/haptic';
 import { Download, X, Smartphone, Zap, WifiOff, Wifi } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -93,16 +94,19 @@ export default function PWAInstallPrompt() {
   const handleInstall = async () => {
     if (!deferredPrompt) return;
 
+    hapticButton();
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
 
     if (outcome === 'accepted') {
+      hapticSuccess();
       setShowPrompt(false);
       setDeferredPrompt(null);
     }
   };
 
   const handleDismiss = () => {
+    hapticButton();
     setShowPrompt(false);
     localStorage.setItem('pwa-prompt-dismissed', 'true');
   };

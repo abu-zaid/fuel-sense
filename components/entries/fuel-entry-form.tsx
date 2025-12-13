@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { addFuelEntry, getFuelEntries, updateFuelEntry } from '@/lib/services';
+import { hapticSuccess, hapticError } from '@/lib/haptic';
 import type { FuelEntry } from '@/lib/types';
 
 interface FuelEntryFormProps {
@@ -88,9 +89,11 @@ export default function FuelEntryForm({ vehicleId, onSuccess, editEntry, standal
       setPetrolPrice('');
       setAmount('');
       setDistance('');
+      hapticSuccess();
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save entry');
+      hapticError();
     } finally {
       setLoading(false);
     }

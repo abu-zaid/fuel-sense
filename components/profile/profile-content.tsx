@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/app/providers';
 import { useTheme } from '@/app/theme-provider';
 import { getUserVehicles, getDefaultVehicle, setDefaultVehicle } from '@/lib/profile';
+import { hapticToggle, hapticButton, hapticSuccess } from '@/lib/haptic';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { LogOut, User, Mail, Car, Calendar, Check, Moon, Sun, Monitor } from 'lucide-react';
@@ -45,10 +46,12 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
   };
 
   const handleDefaultVehicleChange = async (vehicleId: string) => {
+    hapticToggle();
     setSaving(true);
     try {
       await setDefaultVehicle(vehicleId);
       setDefaultVehicleId(vehicleId);
+      hapticSuccess();
       // Notify parent component to reload vehicles with new default
       if (onDefaultVehicleChange) {
         onDefaultVehicleChange();
@@ -218,7 +221,10 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
             </div>
             <div className="grid grid-cols-3 gap-3">
               <motion.button
-                onClick={() => setTheme('dark')}
+                onClick={() => {
+                  hapticToggle();
+                  setTheme('dark');
+                }}
                 className={`relative p-4 rounded-xl border-2 transition-all ${
                   theme === 'dark'
                     ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'
@@ -246,7 +252,10 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
               </motion.button>
 
               <motion.button
-                onClick={() => setTheme('light')}
+                onClick={() => {
+                  hapticToggle();
+                  setTheme('light');
+                }}
                 className={`relative p-4 rounded-xl border-2 transition-all ${
                   theme === 'light'
                     ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'
@@ -274,7 +283,10 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
               </motion.button>
 
               <motion.button
-                onClick={() => setTheme('system')}
+                onClick={() => {
+                  hapticToggle();
+                  setTheme('system');
+                }}
                 className={`relative p-4 rounded-xl border-2 transition-all ${
                   theme === 'system'
                     ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'

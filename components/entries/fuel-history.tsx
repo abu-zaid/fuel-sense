@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/table';
 import { getFuelEntries, deleteFuelEntry } from '@/lib/services';
 import { exportToCSV } from '@/lib/csv';
+import { hapticDelete, hapticButton, hapticToggle, hapticSuccess } from '@/lib/haptic';
 import type { FuelEntry, Vehicle } from '@/lib/types';
 import { Download, Trash2, History, Edit, Search, Filter, TrendingUp, TrendingDown, Calendar, DollarSign, Fuel, ArrowUpDown } from 'lucide-react';
 import FuelEntryModal from './fuel-entry-modal';
@@ -55,9 +56,11 @@ export default function FuelHistory({
   };
 
   const handleDelete = async (id: string) => {
+    hapticDelete();
     if (!confirm('Delete this entry?')) return;
     try {
       await deleteFuelEntry(id);
+      hapticSuccess();
       loadEntries();
       onDataChange();
     } catch (error) {
@@ -67,6 +70,7 @@ export default function FuelHistory({
 
   const handleExport = () => {
     if (!vehicle) return;
+    hapticButton();
     exportToCSV(
       filteredAndSortedEntries,
       vehicle,
@@ -75,6 +79,7 @@ export default function FuelHistory({
   };
 
   const handleSort = (field: 'date' | 'amount' | 'efficiency') => {
+    hapticToggle();
     if (sortBy === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {

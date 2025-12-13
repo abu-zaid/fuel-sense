@@ -17,6 +17,7 @@ import EfficiencyChart from '@/components/charts/efficiency-chart';
 import CostChart from '@/components/charts/cost-chart';
 import Analytics from '@/components/analytics/analytics';
 import { getDefaultVehicle } from '@/lib/profile';
+import { hapticNavigate } from '@/lib/haptic';
 import { BarChart3, Zap, History, UserCircle } from 'lucide-react';
 
 export default function Dashboard() {
@@ -202,7 +203,10 @@ export default function Dashboard() {
             <div className="relative max-w-7xl mx-auto">
               <div className="flex justify-between items-end gap-1 p-3 px-4 pb-safe">
                 <motion.button
-                  onClick={() => setActiveTab('overview')}
+                  onClick={() => {
+                    hapticNavigate();
+                    setActiveTab('overview');
+                  }}
                   whileTap={{ scale: 0.95 }}
                   className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 ${
                     activeTab === 'overview'
@@ -232,7 +236,10 @@ export default function Dashboard() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={() => setActiveTab('charts')}
+                  onClick={() => {
+                    hapticNavigate();
+                    setActiveTab('charts');
+                  }}
                   whileTap={{ scale: 0.95 }}
                   className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 ${
                     activeTab === 'charts'
@@ -262,7 +269,10 @@ export default function Dashboard() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={() => setShowAddModal(true)}
+                  onClick={() => {
+                    hapticNavigate();
+                    setShowAddModal(true);
+                  }}
                   whileTap={{ scale: 0.95 }}
                   className="relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 text-blue-600 dark:text-blue-400"
                 >
@@ -277,7 +287,10 @@ export default function Dashboard() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={() => setActiveTab('history')}
+                  onClick={() => {
+                    hapticNavigate();
+                    setActiveTab('history');
+                  }}
                   whileTap={{ scale: 0.95 }}
                   className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 ${
                     activeTab === 'history'
@@ -307,7 +320,10 @@ export default function Dashboard() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={() => setActiveTab('profile')}
+                  onClick={() => {
+                    hapticNavigate();
+                    setActiveTab('profile');
+                  }}
                   whileTap={{ scale: 0.95 }}
                   className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 ${
                     activeTab === 'profile'
