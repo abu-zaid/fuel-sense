@@ -253,6 +253,21 @@ export default function Dashboard() {
                 </motion.button>
                 
                 <motion.button
+                  onClick={() => router.push('/add-fuel')}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 text-blue-600 dark:text-blue-400"
+                >
+                  <div className="relative mb-1.5 transition-all duration-300 ease-in-out group-active:scale-110 group-hover:scale-105">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  <span className="relative text-xs font-semibold transition-all duration-300">
+                    Add Fuel
+                  </span>
+                </motion.button>
+                
+                <motion.button
                   onClick={() => setActiveTab('history')}
                   whileTap={{ scale: 0.95 }}
                   className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 ${
