@@ -14,6 +14,7 @@ import FuelEntryModal from '@/components/entries/fuel-entry-modal';
 import ProfileContent from '@/components/profile/profile-content';
 import EfficiencyChart from '@/components/charts/efficiency-chart';
 import CostChart from '@/components/charts/cost-chart';
+import Analytics from '@/components/analytics/analytics';
 import { getDefaultVehicle } from '@/lib/profile';
 import { BarChart3, Zap, History, UserCircle } from 'lucide-react';
 
@@ -136,22 +137,13 @@ export default function Dashboard() {
               )}
 
               {activeTab === 'charts' && (
-                <>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <EfficiencyChart vehicleId={selectedVehicle?.id} />
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.1 }}
-                  >
-                    <CostChart vehicleId={selectedVehicle?.id} />
-                  </motion.div>
-                </>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <Analytics vehicleId={selectedVehicle?.id} />
+                </motion.div>
               )}
 
               {activeTab === 'history' && (

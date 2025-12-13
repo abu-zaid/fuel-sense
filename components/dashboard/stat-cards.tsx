@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { getDashboardStats } from '@/lib/services';
 import type { DashboardStats } from '@/lib/types';
-import { TrendingUp, Zap, RouteIcon, Fuel } from 'lucide-react';
+import { IndianRupee, Navigation, Gauge, Droplet } from 'lucide-react';
+import StatCardModal from './stat-card-modal';
 
 interface StatCardsProps {
   vehicleId?: string;
@@ -12,6 +13,7 @@ interface StatCardsProps {
 export default function StatCards({ vehicleId }: StatCardsProps) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedCard, setSelectedCard] = useState<'cost' | 'distance' | 'efficiency' | 'fuel' | null>(null);
 
   useEffect(() => {
     loadStats();
@@ -42,76 +44,94 @@ export default function StatCards({ vehicleId }: StatCardsProps) {
     {
       label: 'Total Cost',
       value: `₹${stats.totalFuelCost.toFixed(2)}`,
-      icon: Fuel,
+      icon: IndianRupee,
       color: 'from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900',
       iconColor: 'text-blue-600',
+      type: 'cost' as const,
     },
     {
       label: 'Total Distance',
       value: `${stats.totalDistance.toFixed(0)} km`,
-      icon: RouteIcon,
+      icon: Navigation,
       color: 'from-green-50 to-green-100 dark:from-green-950 dark:to-green-900',
       iconColor: 'text-green-600',
+      type: 'distance' as const,
     },
     {
       label: 'Avg Efficiency',
       value: `${stats.averageEfficiency.toFixed(1)} km/l`,
-      icon: TrendingUp,
+      icon: Gauge,
       color: 'from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900',
       iconColor: 'text-purple-600',
+      type: 'efficiency' as const,
     },
     {
       label: 'Total Fuel',
       value: `${stats.totalFuelUsed.toFixed(2)} L`,
-      icon: Zap,
+      icon: Droplet,
       color: 'from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900',
       iconColor: 'text-orange-600',
+      type: 'fuel' as const,
     },
   ];
 
   return (
-    <motion.div 
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-      initial="initial"
-      animate="animate"
-      variants={{
-        animate: {
-          transition: {
-            staggerChildren: 0.1,
+    <>
+      <motion.div 
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        initial="initial"
+        animate="animate"
+        variants={{
+          animate: {
+            transition: {
+              staggerChildren: 0.1,
+            },
           },
-        },
-      }}
-    >
-      {statItems.map((item) => {
-        const Icon = item.icon;
-        return (
-          <motion.div
-            key={item.label}
-            variants={{
-              initial: { opacity: 0, scale: 0.9 },
-              animate: { opacity: 1, scale: 1 },
-            }}
-          >
-            <Card 
-              className={`p-6 border-0 bg-gradient-to-br ${item.color} shadow-sm rounded-2xl`}
+        }}
+      >
+        {statItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <motion.div
+              key={item.label}
+              variants={{
+                initial: { opacity: 0, scale: 0.9 },
+                animate: { opacity: 1, scale: 1 },
+              }}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-stone-600 dark:text-stone-300 text-sm font-medium">{item.label}</p>
-                  <p className="text-2xl font-bold text-stone-900 dark:text-white mt-3">{item.value}</p>
+              <Card 
+                className={`p-6 border-0 bg-gradient-to-br ${item.color} shadow-sm rounded-2xl cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]`}
+                onClick={() => setSelectedCard(item.type)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-stone-600 dark:text-stone-300 text-sm font-medium">{item.label}</p>
+                    <p className="text-2xl font-bold text-stone-900 dark:text-white mt-3">{item.value}</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-2">Click for details</p>
+                  </div>
+                  <motion.div 
+                    className={`${item.iconColor} opacity-80`}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Icon className="w-10 h-10" />
+                  </motion.div>
                 </div>
-                <motion.div 
-                  className={`${item.iconColor} opacity-80`}
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Icon className="w-10 h-10" />
-                </motion.div>
-              </div>
-            </Card>
-          </motion.div>
-        );
-      })}
-    </motion.div>
+              </Card>
+            </motion.div>
+          );
+        })}
+      </motion.div>
+
+      {selectedCard && (
+        <StatCardModal
+          isOpen={!!selectedCard}
+          onClose={() => setSelectedCard(null)}
+          type={selectedCard}
+          value={statItems.find(item => item.type === selectedCard)?.value || ''}
+          vehicleId={vehicleId}
+        />
+      )}
+    </>
   );
 }
