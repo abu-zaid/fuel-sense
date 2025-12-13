@@ -56,6 +56,10 @@ export default function FuelEntryForm({ vehicleId, onSuccess, editEntry, standal
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!vehicleId) {
+      setError('No vehicle selected');
+      return;
+    }
     setError('');
     setLoading(true);
 
