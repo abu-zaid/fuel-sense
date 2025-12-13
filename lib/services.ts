@@ -146,7 +146,7 @@ export async function deleteFuelEntry(id: string) {
 export async function getDashboardStats(vehicleId?: string): Promise<DashboardStats> {
   let query = supabase
     .from('fuel_entries')
-    .select('amount, distance, petrol_price, fuel_used, efficiency');
+    .select('amount, distance, petrol_price, fuel_used, efficiency, created_at');
 
   if (vehicleId) {
     query = query.eq('vehicle_id', vehicleId);
@@ -158,10 +158,41 @@ export async function getDashboardStats(vehicleId?: string): Promise<DashboardSt
 
   const entries = data as FuelEntry[];
 
+  // Calculate current month stats
+  const now = new Date();
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+  const currentMonthEntries = entries.filter(e => new Date(e.created_at) >= currentMonthStart);
+  const lastMonthEntries = entries.filter(e => {
+    const date = new Date(e.created_at);
+    return date >= lastMonthStart && date <= lastMonthEnd;
+  });
+
+  // Current totals
   const totalFuelCost = entries.reduce((sum, entry) => sum + entry.amount, 0);
   const totalDistance = entries.reduce((sum, entry) => sum + entry.distance, 0);
   const totalFuelUsed = entries.reduce((sum, entry) => sum + entry.fuel_used, 0);
   const averageEfficiency = entries.length > 0 ? totalDistance / totalFuelUsed : 0;
+
+  // Current month totals
+  const currentCost = currentMonthEntries.reduce((sum, e) => sum + e.amount, 0);
+  const currentDistance = currentMonthEntries.reduce((sum, e) => sum + e.distance, 0);
+  const currentFuel = currentMonthEntries.reduce((sum, e) => sum + e.fuel_used, 0);
+  const currentEfficiency = currentFuel > 0 ? currentDistance / currentFuel : 0;
+
+  // Last month totals
+  const lastCost = lastMonthEntries.reduce((sum, e) => sum + e.amount, 0);
+  const lastDistance = lastMonthEntries.reduce((sum, e) => sum + e.distance, 0);
+  const lastFuel = lastMonthEntries.reduce((sum, e) => sum + e.fuel_used, 0);
+  const lastEfficiency = lastFuel > 0 ? lastDistance / lastFuel : 0;
+
+  // Calculate percentage changes
+  const calculateChange = (current: number, last: number) => {
+    if (last === 0) return current > 0 ? 100 : 0;
+    return ((current - last) / last) * 100;
+  };
 
   return {
     totalFuelCost: Math.round(totalFuelCost * 100) / 100,
@@ -169,6 +200,10 @@ export async function getDashboardStats(vehicleId?: string): Promise<DashboardSt
     averageEfficiency: Math.round(averageEfficiency * 100) / 100,
     totalFuelUsed: Math.round(totalFuelUsed * 100) / 100,
     entriesCount: entries.length,
+    costChange: Math.round(calculateChange(currentCost, lastCost) * 10) / 10,
+    distanceChange: Math.round(calculateChange(currentDistance, lastDistance) * 10) / 10,
+    efficiencyChange: Math.round(calculateChange(currentEfficiency, lastEfficiency) * 10) / 10,
+    fuelChange: Math.round(calculateChange(currentFuel, lastFuel) * 10) / 10,
   };
 }
 

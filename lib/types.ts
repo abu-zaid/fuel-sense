@@ -46,6 +46,10 @@ export interface DashboardStats {
   averageEfficiency: number;
   totalFuelUsed: number;
   entriesCount: number;
+  costChange?: number; // percentage change vs last month
+  distanceChange?: number;
+  efficiencyChange?: number;
+  fuelChange?: number;
 }
 
 export interface MonthlyCost {

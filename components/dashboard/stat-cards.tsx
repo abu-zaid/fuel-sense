@@ -43,19 +43,21 @@ export default function StatCards({ vehicleId }: StatCardsProps) {
   const statItems = [
     {
       label: 'Total Cost',
-      value: `₹${stats.totalFuelCost.toFixed(2)}`,
+      value: `₹${stats.totalFuelCost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: IndianRupee,
       color: 'from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900',
       iconColor: 'text-blue-600',
       type: 'cost' as const,
+      change: stats.costChange,
     },
     {
       label: 'Total Distance',
-      value: `${stats.totalDistance.toFixed(0)} km`,
+      value: `${stats.totalDistance.toLocaleString('en-IN', { maximumFractionDigits: 0 })} km`,
       icon: Navigation,
       color: 'from-green-50 to-green-100 dark:from-green-950 dark:to-green-900',
       iconColor: 'text-green-600',
       type: 'distance' as const,
+      change: stats.distanceChange,
     },
     {
       label: 'Avg Efficiency',
@@ -64,14 +66,16 @@ export default function StatCards({ vehicleId }: StatCardsProps) {
       color: 'from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900',
       iconColor: 'text-purple-600',
       type: 'efficiency' as const,
+      change: stats.efficiencyChange,
     },
     {
       label: 'Total Fuel',
-      value: `${stats.totalFuelUsed.toFixed(2)} L`,
+      value: `${stats.totalFuelUsed.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L`,
       icon: Droplet,
       color: 'from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900',
       iconColor: 'text-orange-600',
       type: 'fuel' as const,
+      change: stats.fuelChange,
     },
   ];
 
@@ -107,7 +111,21 @@ export default function StatCards({ vehicleId }: StatCardsProps) {
                   <div className="flex-1">
                     <p className="text-stone-600 dark:text-stone-300 text-sm font-medium">{item.label}</p>
                     <p className="text-2xl font-bold text-stone-900 dark:text-white mt-3">{item.value}</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-2">Click for details</p>
+                    {item.change !== undefined && item.change !== 0 && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <span className={`text-xs font-semibold ${
+                          item.change > 0 
+                            ? 'text-green-600 dark:text-green-400' 
+                            : 'text-red-600 dark:text-red-400'
+                        }`}>
+                          {item.change > 0 ? '↑' : '↓'} {Math.abs(item.change).toFixed(1)}%
+                        </span>
+                        <span className="text-xs text-stone-500 dark:text-stone-400">vs last month</span>
+                      </div>
+                    )}
+                    {(item.change === undefined || item.change === 0) && (
+                      <p className="text-xs text-stone-500 dark:text-stone-400 mt-2">Click for details</p>
+                    )}
                   </div>
                   <motion.div 
                     className={`${item.iconColor} opacity-80`}
