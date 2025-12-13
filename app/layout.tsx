@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AuthProvider } from './providers';
+import BrowserDebugInfo from '@/components/debug/browser-debug';
+import ErrorBoundary from '@/components/error-boundary';
 import './globals.css';
 
 const geist = Geist({
@@ -54,7 +56,10 @@ export default function RootLayout({
         className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-gradient-to-br from-stone-50 to-stone-100 text-stone-900`}
         suppressHydrationWarning
       >
-        <AuthProvider>{children}</AuthProvider>
+        <BrowserDebugInfo />
+        <ErrorBoundary>
+          <AuthProvider>{children}</AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
