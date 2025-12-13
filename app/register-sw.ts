@@ -56,18 +56,27 @@ async function registerSW() {
       }
     }
 
-    // Listen for updates
+    // Listen for service worker updates
     registration.addEventListener('updatefound', () => {
       const newWorker = registration.installing;
+      console.log('[App] Service worker update found');
+      
       if (newWorker) {
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
             // New service worker available
-            console.log('New service worker available. Refresh to update.');
+            console.log('[App] New service worker installed and ready');
             
-            // Optionally show update notification
-            if (window.confirm('New version available! Reload to update?')) {
-              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            // Auto-reload to get the latest version (better UX for PWA)
+            // The user will see the latest version immediately
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+            
+            // Show a brief notification before reload
+            const shouldReload = window.confirm(
+              '🎉 New version available! The app will reload to update.'
+            );
+            
+            if (shouldReload) {
               window.location.reload();
             }
           }
@@ -75,14 +84,15 @@ async function registerSW() {
       }
     });
 
-    // Check for updates less frequently to reduce overhead
+    // Check for updates more aggressively during development
+    // Every 30 seconds to catch updates quickly
     const updateInterval = setInterval(() => {
       if (registration && registration.update) {
         registration.update().catch(err => {
-          console.warn('Service Worker update check failed:', err);
+          console.warn('[App] Service Worker update check failed:', err);
         });
       }
-    }, 300000); // Check every 5 minutes
+    }, 30000); // Check every 30 seconds
 
     // Clean up interval on page unload
     if (typeof window !== 'undefined') {

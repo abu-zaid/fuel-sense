@@ -1,8 +1,10 @@
-const CACHE_NAME = 'fuelsense-v3';
-const STATIC_CACHE = 'fuelsense-static-v3';
-const RUNTIME_CACHE = 'fuelsense-runtime-v3';
-const DATA_CACHE = 'fuelsense-data-v3';
-const OFFLINE_QUEUE = 'fuelsense-offline-queue-v3';
+// Update this version on each deployment to force cache refresh
+const VERSION = '1.0.' + Date.now();
+const CACHE_NAME = `fuelsense-v${VERSION}`;
+const STATIC_CACHE = `fuelsense-static-v${VERSION}`;
+const RUNTIME_CACHE = `fuelsense-runtime-v${VERSION}`;
+const DATA_CACHE = `fuelsense-data-v${VERSION}`;
+const OFFLINE_QUEUE = `fuelsense-offline-queue-v${VERSION}`;
 
 // Assets to cache immediately on install
 const STATIC_ASSETS = [
@@ -102,6 +104,7 @@ const syncOfflineData = async () => {
 };
 
 self.addEventListener('install', (event) => {
+  console.log('[SW] Installing new service worker version:', VERSION);
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
       return cache.addAll(STATIC_ASSETS).catch((err) => {
@@ -109,16 +112,20 @@ self.addEventListener('install', (event) => {
       });
     })
   );
+  // Force the waiting service worker to become the active service worker
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
+  console.log('[SW] Activating new service worker version:', VERSION);
   event.waitUntil(
     Promise.all([
       caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
+            // Delete all old caches except current versions
             if (![CACHE_NAME, STATIC_CACHE, RUNTIME_CACHE, DATA_CACHE, OFFLINE_QUEUE].includes(cacheName)) {
+              console.log('[SW] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
@@ -127,7 +134,18 @@ self.addEventListener('activate', (event) => {
       syncOfflineData(), // Sync any offline data when SW activates
     ])
   );
+  // Take control of all pages immediately
   self.clients.claim();
+  
+  // Notify all clients about the update
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'SW_UPDATED',
+        version: VERSION,
+      });
+    });
+  });
 });
 
 self.addEventListener('fetch', (event) => {

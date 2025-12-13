@@ -80,6 +80,15 @@ export default function PWAInstallPrompt() {
           setSyncMessage(event.data.message);
           setShowOfflineToast(true);
           setTimeout(() => setShowOfflineToast(false), 3000);
+        } else if (event.data.type === 'SW_UPDATED') {
+          // New version detected - show update toast
+          setSyncMessage('🎉 App updated! Refresh to see changes.');
+          setShowOfflineToast(true);
+          
+          // Auto-reload after 2 seconds
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         }
       });
     }
