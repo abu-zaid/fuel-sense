@@ -18,7 +18,8 @@ import {
   Tooltip, 
   ResponsiveContainer,
   Legend,
-  ComposedChart
+  ComposedChart,
+  Cell
 } from 'recharts';
 import { 
   TrendingUp, 
