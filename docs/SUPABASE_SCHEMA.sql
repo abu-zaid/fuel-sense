@@ -34,6 +34,14 @@ CREATE TABLE IF NOT EXISTS fuel_entries (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Profiles table
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  default_vehicle_id UUID REFERENCES vehicles(id) ON DELETE SET NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Reminders table
 CREATE TABLE IF NOT EXISTS reminders (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -50,6 +58,8 @@ CREATE TABLE IF NOT EXISTS reminders (
 -- INDEXES
 -- ============================================================================
 
+CREATE INDEX IF NOT EXISTS idx_profiles_default_vehicle ON profiles(default_vehicle_id);
+
 CREATE INDEX IF NOT EXISTS idx_vehicles_user_id ON vehicles(user_id);
 CREATE INDEX IF NOT EXISTS idx_fuel_entries_user_id ON fuel_entries(user_id);
 CREATE INDEX IF NOT EXISTS idx_fuel_entries_vehicle_id ON fuel_entries(vehicle_id);
@@ -62,9 +72,33 @@ CREATE INDEX IF NOT EXISTS idx_reminders_vehicle_id ON reminders(vehicle_id);
 -- ============================================================================
 
 -- Enable RLS on all tables
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE vehicles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE fuel_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reminders ENABLE ROW LEVEL SECURITY;
+
+-- ============================================================================
+-- PROFILES POLICIES
+-- ============================================================================
+
+-- Users can view their own profile
+CREATE POLICY "Users can view their own profile"
+  ON profiles
+  FOR SELECT
+  USING (auth.uid() = id);
+
+-- Users can insert their own profile
+CREATE POLICY "Users can create their own profile"
+  ON profiles
+  FOR INSERT
+  WITH CHECK (auth.uid() = id);
+
+-- Users can update their own profile
+CREATE POLICY "Users can update their own profile"
+  ON profiles
+  FOR UPDATE
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
 
 -- ============================================================================
 -- VEHICLES POLICIES
@@ -239,3 +273,28 @@ CREATE TRIGGER update_fuel_entries_updated_at
 BEFORE UPDATE ON fuel_entries
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_profiles_updated_at
+BEFORE UPDATE ON profiles
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================================
+-- AUTOMATIC PROFILE CREATION
+-- ============================================================================
+
+-- Function to automatically create a profile when a user signs up
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id)
+  VALUES (NEW.id);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to create profile on user signup
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION handle_new_user();

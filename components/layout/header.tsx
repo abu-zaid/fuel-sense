@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import ImportDataDialog from '@/components/entries/import-data-dialog';
 import { LogOut, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import type { Vehicle } from '@/lib/types';
 
 interface HeaderProps {
@@ -20,6 +21,7 @@ interface HeaderProps {
 
 export default function Header({ onLogout, vehicles = [], onImportSuccess }: HeaderProps) {
   const { user } = useAuth();
+  const router = useRouter();
 
   return (
     <header className="sticky top-0 z-50">
@@ -41,7 +43,6 @@ export default function Header({ onLogout, vehicles = [], onImportSuccess }: Hea
                 <ImportDataDialog vehicles={vehicles} onSuccess={onImportSuccess || (() => {})} />
               </div>
             )}
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
@@ -55,10 +56,11 @@ export default function Header({ onLogout, vehicles = [], onImportSuccess }: Hea
                   </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="rounded-xl">
+              <DropdownMenuContent align="end" className="rounded-xl w-48">
                 <DropdownMenuItem 
                   onClick={onLogout} 
-                  className="gap-2 cursor-pointer text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-all duration-300 ease-in-out"
+                  className="cursor-pointer text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950"
+                  variant="destructive"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out

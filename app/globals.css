@@ -133,19 +133,40 @@
     padding-bottom: calc(env(safe-area-inset-bottom, 0) + 0.75rem);
   }
 
+  /* Remove tap highlight and borders on mobile */
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
   /* Remove borders from Recharts elements */
   .recharts-tooltip-wrapper,
   .recharts-tooltip-wrapper *,
   .recharts-active-dot,
   .recharts-active-dot *,
   .recharts-cursor,
-  .recharts-cursor * {
+  .recharts-cursor *,
+  .recharts-wrapper,
+  .recharts-wrapper *,
+  .recharts-surface,
+  .recharts-surface * {
     border: none !important;
     outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
 
   /* Remove borders from tooltip content */
   .recharts-tooltip-wrapper .recharts-tooltip-content {
     border: none !important;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

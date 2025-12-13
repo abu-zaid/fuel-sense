@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AuthProvider } from './providers';
 import './globals.css';
@@ -13,12 +13,17 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#f8f6f1',
+};
+
 export const metadata: Metadata = {
   title: 'FuelSense - Track Your Vehicle Fuel Consumption',
   description: 'A beautiful, minimal fuel tracking app for vehicles',
   manifest: '/manifest.json',
-  themeColor: '#f8f6f1',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },

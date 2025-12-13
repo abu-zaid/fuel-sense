@@ -99,7 +99,7 @@ export default function EfficiencyChart({
   }
 
   return (
-    <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-stone-50 dark:from-slate-800 dark:via-blue-900/10 dark:to-slate-900 rounded-3xl overflow-hidden backdrop-blur-sm">
+    <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-stone-50 dark:from-slate-800 dark:via-blue-900/10 dark:to-slate-900 rounded-3xl overflow-hidden backdrop-blur-sm outline-none focus:outline-none active:outline-none touch-manipulation">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-xl font-bold text-stone-900 dark:text-white flex items-center gap-2 mb-1">

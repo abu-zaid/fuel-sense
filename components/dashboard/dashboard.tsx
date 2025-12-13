@@ -11,7 +11,9 @@ import StatCards from '@/components/dashboard/stat-cards';
 import DashboardUI from './dashboard-ui';
 import FuelHistory from '@/components/entries/fuel-history';
 import FuelEntryModal from '@/components/entries/fuel-entry-modal';
-import { BarChart3, Zap, History } from 'lucide-react';
+import ProfileContent from '@/components/profile/profile-content';
+import { getDefaultVehicle } from '@/lib/profile';
+import { BarChart3, Zap, History, UserCircle } from 'lucide-react';
 
 // Lazy load heavy chart components
 const EfficiencyChart = lazy(() => import('@/components/charts/efficiency-chart'));
@@ -45,7 +47,18 @@ export default function Dashboard() {
       const data = await getVehicles();
       setVehicles(data);
       if (data.length > 0) {
-        setSelectedVehicle(data[0]);
+        // Try to load default vehicle, otherwise use first vehicle
+        try {
+          const defaultVehicleId = await getDefaultVehicle();
+          if (defaultVehicleId) {
+            const defaultVehicle = data.find(v => v.id === defaultVehicleId);
+            setSelectedVehicle(defaultVehicle || data[0]);
+          } else {
+            setSelectedVehicle(data[0]);
+          }
+        } catch {
+          setSelectedVehicle(data[0]);
+        }
       }
     } catch (error) {
       console.error('Failed to load vehicles:', error);
@@ -163,6 +176,16 @@ export default function Dashboard() {
                   <FuelHistory vehicleId={selectedVehicle?.id} vehicle={selectedVehicle} onDataChange={loadEntries} />
                 </motion.div>
               )}
+
+              {activeTab === 'profile' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <ProfileContent onLogout={signOut} onDefaultVehicleChange={loadVehicles} />
+                </motion.div>
+              )}
             </motion.div>
 
             {/* Mobile Fuel Entry Modal */}
@@ -185,11 +208,11 @@ export default function Dashboard() {
             
             {/* Content */}
             <div className="relative max-w-7xl mx-auto">
-              <div className="grid grid-cols-3 gap-2 p-3 px-4 pb-safe">
+              <div className="flex justify-between gap-1 p-3 px-4 pb-safe">
                 <motion.button
                   onClick={() => setActiveTab('overview')}
                   whileTap={{ scale: 0.95 }}
-                  className={`relative flex flex-col items-center justify-center py-3 px-4 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation ${
+                  className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 ${
                     activeTab === 'overview'
                       ? 'text-blue-600 dark:text-blue-400'
                       : 'text-stone-600 dark:text-stone-400'
@@ -219,7 +242,7 @@ export default function Dashboard() {
                 <motion.button
                   onClick={() => setActiveTab('charts')}
                   whileTap={{ scale: 0.95 }}
-                  className={`relative flex flex-col items-center justify-center py-3 px-4 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation ${
+                  className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 ${
                     activeTab === 'charts'
                       ? 'text-blue-600 dark:text-blue-400'
                       : 'text-stone-600 dark:text-stone-400'
@@ -249,7 +272,7 @@ export default function Dashboard() {
                 <motion.button
                   onClick={() => setActiveTab('history')}
                   whileTap={{ scale: 0.95 }}
-                  className={`relative flex flex-col items-center justify-center py-3 px-4 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation ${
+                  className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 ${
                     activeTab === 'history'
                       ? 'text-blue-600 dark:text-blue-400'
                       : 'text-stone-600 dark:text-stone-400'
@@ -273,6 +296,36 @@ export default function Dashboard() {
                     activeTab === 'history' ? 'scale-105' : ''
                   }`}>
                     History
+                  </span>
+                </motion.button>
+                
+                <motion.button
+                  onClick={() => setActiveTab('profile')}
+                  whileTap={{ scale: 0.95 }}
+                  className={`relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 ${
+                    activeTab === 'profile'
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-stone-600 dark:text-stone-400'
+                  }`}
+                >
+                  {activeTab === 'profile' && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-100/90 to-blue-50/90 dark:from-blue-900/30 dark:to-blue-800/20 shadow-lg shadow-blue-500/10"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  <div className={`relative mb-1.5 transition-all duration-300 ease-in-out ${
+                    activeTab === 'profile' 
+                      ? 'scale-110' 
+                      : 'group-active:scale-110 group-hover:scale-105'
+                  }`}>
+                    <UserCircle className={`w-6 h-6 ${activeTab === 'profile' ? 'drop-shadow-sm' : ''}`} />
+                  </div>
+                  <span className={`relative text-xs font-semibold transition-all duration-300 ${
+                    activeTab === 'profile' ? 'scale-105' : ''
+                  }`}>
+                    Profile
                   </span>
                 </motion.button>
               </div>
