@@ -20,14 +20,14 @@ export default function FuelEntryModal({ vehicleId, onSuccess, editEntry, isEdit
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (isEditMode && editEntry) {
+    if (isEditMode !== undefined) {
       setOpen(true);
     }
   }, [isEditMode, editEntry]);
 
   const handleClose = (value: boolean) => {
     setOpen(value);
-    if (!value && isEditMode && onEditClose) {
+    if (!value && onEditClose) {
       onEditClose();
     }
   };

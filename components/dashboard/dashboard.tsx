@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [entries, setEntries] = useState<FuelEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     loadVehicles();
@@ -250,7 +251,7 @@ export default function Dashboard() {
                 </motion.button>
                 
                 <motion.button
-                  onClick={() => router.push('/add-fuel')}
+                  onClick={() => setShowAddModal(true)}
                   whileTap={{ scale: 0.95 }}
                   className="relative flex flex-col items-center justify-center py-3 px-2 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation flex-1 text-blue-600 dark:text-blue-400"
                 >
@@ -327,6 +328,19 @@ export default function Dashboard() {
             </div>
           </div>
         </motion.div>
+      )}
+
+      {/* Add Fuel Entry Modal */}
+      {showAddModal && selectedVehicle && (
+        <FuelEntryModal
+          vehicleId={selectedVehicle.id}
+          onSuccess={() => {
+            setShowAddModal(false);
+            loadEntries();
+          }}
+          isEditMode={false}
+          onEditClose={() => setShowAddModal(false)}
+        />
       )}
     </div>
   );
