@@ -2,17 +2,17 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from './providers';
-import Dashboard from '@/components/dashboard/dashboard';
+import { useAuth } from '../providers';
+import AuthPage from '@/components/auth/auth-page';
 
-export default function Home() {
+export default function SignInPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // If not authenticated, redirect to landing page
-    if (!loading && !user) {
-      router.push('/landing');
+    // If already authenticated, redirect to dashboard
+    if (!loading && user) {
+      router.push('/');
     }
   }, [user, loading, router]);
 
@@ -26,6 +26,5 @@ export default function Home() {
     );
   }
 
-  // Show dashboard only if authenticated
-  return user ? <Dashboard /> : null;
+  return user ? null : <AuthPage />;
 }
