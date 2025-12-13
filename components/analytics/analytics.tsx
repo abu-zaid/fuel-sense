@@ -249,7 +249,7 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
             <h4 className="font-semibold text-stone-900 dark:text-white">Best Efficiency</h4>
           </div>
           <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-            {insights.bestEfficiency.toFixed(1)} km/l
+            {insights.bestEfficiency.toFixed(2)} km/l
           </p>
         </Card>
 
@@ -270,7 +270,7 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
           </div>
           <div className="flex items-center gap-2">
             <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-              {Math.abs(insights.efficiencyTrend).toFixed(1)}%
+              {Math.abs(insights.efficiencyTrend).toFixed(2)}%
             </p>
             {insights.efficiencyTrend > 0 ? (
               <TrendingUp className="w-6 h-6 text-green-500" />
@@ -286,7 +286,7 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
             <h4 className="font-semibold text-stone-900 dark:text-white">Savings Potential</h4>
           </div>
           <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">
-            {insights.fuelSavingsOpportunity.toFixed(1)}%
+            {insights.fuelSavingsOpportunity.toFixed(2)}%
           </p>
           <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
             by reaching best efficiency
@@ -317,7 +317,7 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
             <p className="text-sm text-stone-600 dark:text-stone-400 mb-2">Cost Trend</p>
             <div className="flex items-center justify-center gap-2">
               <p className="text-3xl font-bold text-stone-900 dark:text-white">
-                {Math.abs(insights.costTrend).toFixed(1)}%
+                {Math.abs(insights.costTrend).toFixed(2)}%
               </p>
               {insights.costTrend > 0 ? (
                 <TrendingUp className="w-6 h-6 text-red-500" />

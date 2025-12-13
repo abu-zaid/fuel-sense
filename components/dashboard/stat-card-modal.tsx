@@ -174,11 +174,11 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
   const CustomTooltip = (props: any) => {
     const { active, payload } = props;
     if (active && payload && payload.length) {
-      const value = payload[0].value as number;
+          const value = payload[0].value as number;
       return (
         <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 p-3">
           <p className="text-sm font-bold" style={{ color: getColor() }}>
-            {getUnit()}{type === 'cost' ? value.toFixed(2) : value.toFixed(1)}
+            {type === 'cost' ? getUnit() : ''}{value.toFixed(2)}{type !== 'cost' ? ' ' + getUnit() : ''}
           </p>
           <p className="text-xs text-stone-500 dark:text-stone-400">{payload[0].payload.date}</p>
         </div>
@@ -237,19 +237,19 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
               <div className="p-4 bg-stone-50 dark:bg-slate-800 rounded-xl">
                 <p className="text-xs text-stone-600 dark:text-stone-400 mb-1">Average</p>
                 <p className="text-lg font-bold text-stone-900 dark:text-white">
-                  {getUnit()}{stats.average.toFixed(type === 'cost' ? 2 : 1)}
+                  {type === 'cost' ? getUnit() : ''}{stats.average.toFixed(2)}{type !== 'cost' ? ' ' + getUnit() : ''}
                 </p>
               </div>
               <div className="p-4 bg-stone-50 dark:bg-slate-800 rounded-xl">
                 <p className="text-xs text-stone-600 dark:text-stone-400 mb-1">Minimum</p>
                 <p className="text-lg font-bold text-stone-900 dark:text-white">
-                  {getUnit()}{stats.min.toFixed(type === 'cost' ? 2 : 1)}
+                  {type === 'cost' ? getUnit() : ''}{stats.min.toFixed(2)}{type !== 'cost' ? ' ' + getUnit() : ''}
                 </p>
               </div>
               <div className="p-4 bg-stone-50 dark:bg-slate-800 rounded-xl">
                 <p className="text-xs text-stone-600 dark:text-stone-400 mb-1">Maximum</p>
                 <p className="text-lg font-bold text-stone-900 dark:text-white">
-                  {getUnit()}{stats.max.toFixed(type === 'cost' ? 2 : 1)}
+                  {type === 'cost' ? getUnit() : ''}{stats.max.toFixed(2)}{type !== 'cost' ? ' ' + getUnit() : ''}
                 </p>
               </div>
               <div className="p-4 bg-stone-50 dark:bg-slate-800 rounded-xl">
@@ -263,13 +263,13 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
               <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 rounded-xl">
                 <p className="text-xs text-blue-800 dark:text-blue-300 mb-1">Last Month Avg</p>
                 <p className="text-xl font-bold text-blue-900 dark:text-blue-100">
-                  {getUnit()}{stats.lastMonth.toFixed(type === 'cost' ? 2 : 1)}
+                  {type === 'cost' ? getUnit() : ''}{stats.lastMonth.toFixed(2)}{type !== 'cost' ? ' ' + getUnit() : ''}
                 </p>
               </div>
               <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 rounded-xl">
                 <p className="text-xs text-purple-800 dark:text-purple-300 mb-1">This Month Avg</p>
                 <p className="text-xl font-bold text-purple-900 dark:text-purple-100">
-                  {getUnit()}{stats.thisMonth.toFixed(type === 'cost' ? 2 : 1)}
+                  {type === 'cost' ? getUnit() : ''}{stats.thisMonth.toFixed(2)}{type !== 'cost' ? ' ' + getUnit() : ''}
                 </p>
               </div>
             </div>
