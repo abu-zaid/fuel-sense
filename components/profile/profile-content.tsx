@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/app/providers';
+import { useTheme } from '@/app/theme-provider';
 import { getUserVehicles, getDefaultVehicle, setDefaultVehicle } from '@/lib/profile';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { LogOut, User, Mail, Car, Calendar, Check } from 'lucide-react';
+import { LogOut, User, Mail, Car, Calendar, Check, Moon, Sun, Monitor } from 'lucide-react';
 import type { Vehicle } from '@/lib/types';
 
 interface ProfileContentProps {
@@ -16,6 +17,7 @@ interface ProfileContentProps {
 
 export default function ProfileContent({ onLogout, onDefaultVehicleChange }: ProfileContentProps) {
   const { user } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [defaultVehicleId, setDefaultVehicleId] = useState('');
   const [loading, setLoading] = useState(true);
@@ -190,6 +192,118 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
           </Card>
         </motion.div>
       )}
+
+      {/* Theme Selector Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-stone-50 dark:from-slate-800 dark:to-slate-900">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                {theme === 'dark' ? (
+                  <Moon className="w-5 h-5 text-white" />
+                ) : theme === 'light' ? (
+                  <Sun className="w-5 h-5 text-white" />
+                ) : (
+                  <Monitor className="w-5 h-5 text-white" />
+                )}
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-stone-900 dark:text-white">Theme</h3>
+                <p className="text-sm text-stone-600 dark:text-stone-400">Choose your preferred theme</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <motion.button
+                onClick={() => setTheme('dark')}
+                className={`relative p-4 rounded-xl border-2 transition-all ${
+                  theme === 'dark'
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'
+                    : 'border-stone-200 dark:border-slate-700 hover:border-stone-300 dark:hover:border-slate-600'
+                }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <Moon className={`w-6 h-6 ${theme === 'dark' ? 'text-indigo-600 dark:text-indigo-400' : 'text-stone-600 dark:text-stone-400'}`} />
+                  <span className={`text-sm font-medium ${theme === 'dark' ? 'text-indigo-900 dark:text-indigo-300' : 'text-stone-700 dark:text-stone-300'}`}>
+                    Dark
+                  </span>
+                  {theme === 'dark' && (
+                    <motion.div
+                      className="absolute top-2 right-2"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    >
+                      <Check className="w-5 h-5 text-indigo-500" />
+                    </motion.div>
+                  )}
+                </div>
+              </motion.button>
+
+              <motion.button
+                onClick={() => setTheme('light')}
+                className={`relative p-4 rounded-xl border-2 transition-all ${
+                  theme === 'light'
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'
+                    : 'border-stone-200 dark:border-slate-700 hover:border-stone-300 dark:hover:border-slate-600'
+                }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <Sun className={`w-6 h-6 ${theme === 'light' ? 'text-indigo-600 dark:text-indigo-400' : 'text-stone-600 dark:text-stone-400'}`} />
+                  <span className={`text-sm font-medium ${theme === 'light' ? 'text-indigo-900 dark:text-indigo-300' : 'text-stone-700 dark:text-stone-300'}`}>
+                    Light
+                  </span>
+                  {theme === 'light' && (
+                    <motion.div
+                      className="absolute top-2 right-2"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    >
+                      <Check className="w-5 h-5 text-indigo-500" />
+                    </motion.div>
+                  )}
+                </div>
+              </motion.button>
+
+              <motion.button
+                onClick={() => setTheme('system')}
+                className={`relative p-4 rounded-xl border-2 transition-all ${
+                  theme === 'system'
+                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'
+                    : 'border-stone-200 dark:border-slate-700 hover:border-stone-300 dark:hover:border-slate-600'
+                }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <Monitor className={`w-6 h-6 ${theme === 'system' ? 'text-indigo-600 dark:text-indigo-400' : 'text-stone-600 dark:text-stone-400'}`} />
+                  <span className={`text-sm font-medium ${theme === 'system' ? 'text-indigo-900 dark:text-indigo-300' : 'text-stone-700 dark:text-stone-300'}`}>
+                    System
+                  </span>
+                  {theme === 'system' && (
+                    <motion.div
+                      className="absolute top-2 right-2"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    >
+                      <Check className="w-5 h-5 text-indigo-500" />
+                    </motion.div>
+                  )}
+                </div>
+              </motion.button>
+            </div>
+          </div>
+        </Card>
+      </motion.div>
 
       {/* Sign Out Card */}
       <motion.div
