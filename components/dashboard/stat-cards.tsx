@@ -120,7 +120,7 @@ export default function StatCards({ vehicleId }: StatCardsProps) {
                         }`}>
                           {item.change > 0 ? '↑' : '↓'} {Math.abs(item.change).toFixed(1)}%
                         </span>
-                        <span className="text-xs text-stone-500 dark:text-stone-400">vs last month</span>
+                        <span className="text-xs text-stone-500 dark:text-stone-400">vs prev 30d</span>
                       </div>
                     )}
                     {(item.change === undefined || item.change === 0) && (

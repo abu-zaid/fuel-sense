@@ -158,40 +158,40 @@ export async function getDashboardStats(vehicleId?: string): Promise<DashboardSt
 
   const entries = data as FuelEntry[];
 
-  // Calculate current month stats
-  const now = new Date();
-  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
-
-  const currentMonthEntries = entries.filter(e => new Date(e.created_at) >= currentMonthStart);
-  const lastMonthEntries = entries.filter(e => {
-    const date = new Date(e.created_at);
-    return date >= lastMonthStart && date <= lastMonthEnd;
-  });
-
-  // Current totals
+  // All-time totals
   const totalFuelCost = entries.reduce((sum, entry) => sum + entry.amount, 0);
   const totalDistance = entries.reduce((sum, entry) => sum + entry.distance, 0);
   const totalFuelUsed = entries.reduce((sum, entry) => sum + entry.fuel_used, 0);
   const averageEfficiency = entries.length > 0 ? totalDistance / totalFuelUsed : 0;
 
-  // Current month totals
-  const currentCost = currentMonthEntries.reduce((sum, e) => sum + e.amount, 0);
-  const currentDistance = currentMonthEntries.reduce((sum, e) => sum + e.distance, 0);
-  const currentFuel = currentMonthEntries.reduce((sum, e) => sum + e.fuel_used, 0);
-  const currentEfficiency = currentFuel > 0 ? currentDistance / currentFuel : 0;
+  // Calculate last 30 days vs previous 30 days for comparison
+  const now = new Date();
+  const last30DaysStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const previous30DaysStart = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+  const previous30DaysEnd = last30DaysStart;
 
-  // Last month totals
-  const lastCost = lastMonthEntries.reduce((sum, e) => sum + e.amount, 0);
-  const lastDistance = lastMonthEntries.reduce((sum, e) => sum + e.distance, 0);
-  const lastFuel = lastMonthEntries.reduce((sum, e) => sum + e.fuel_used, 0);
-  const lastEfficiency = lastFuel > 0 ? lastDistance / lastFuel : 0;
+  const last30DaysEntries = entries.filter(e => new Date(e.created_at) >= last30DaysStart);
+  const previous30DaysEntries = entries.filter(e => {
+    const date = new Date(e.created_at);
+    return date >= previous30DaysStart && date < previous30DaysEnd;
+  });
 
-  // Calculate percentage changes
-  const calculateChange = (current: number, last: number) => {
-    if (last === 0) return current > 0 ? 100 : 0;
-    return ((current - last) / last) * 100;
+  // Last 30 days totals
+  const recentCost = last30DaysEntries.reduce((sum, e) => sum + e.amount, 0);
+  const recentDistance = last30DaysEntries.reduce((sum, e) => sum + e.distance, 0);
+  const recentFuel = last30DaysEntries.reduce((sum, e) => sum + e.fuel_used, 0);
+  const recentEfficiency = recentFuel > 0 ? recentDistance / recentFuel : 0;
+
+  // Previous 30 days totals
+  const prevCost = previous30DaysEntries.reduce((sum, e) => sum + e.amount, 0);
+  const prevDistance = previous30DaysEntries.reduce((sum, e) => sum + e.distance, 0);
+  const prevFuel = previous30DaysEntries.reduce((sum, e) => sum + e.fuel_used, 0);
+  const prevEfficiency = prevFuel > 0 ? prevDistance / prevFuel : 0;
+
+  // Calculate percentage changes (recent vs previous period)
+  const calculateChange = (recent: number, previous: number) => {
+    if (previous === 0) return recent > 0 ? 100 : 0;
+    return ((recent - previous) / previous) * 100;
   };
 
   return {
@@ -200,10 +200,10 @@ export async function getDashboardStats(vehicleId?: string): Promise<DashboardSt
     averageEfficiency: Math.round(averageEfficiency * 100) / 100,
     totalFuelUsed: Math.round(totalFuelUsed * 100) / 100,
     entriesCount: entries.length,
-    costChange: Math.round(calculateChange(currentCost, lastCost) * 10) / 10,
-    distanceChange: Math.round(calculateChange(currentDistance, lastDistance) * 10) / 10,
-    efficiencyChange: Math.round(calculateChange(currentEfficiency, lastEfficiency) * 10) / 10,
-    fuelChange: Math.round(calculateChange(currentFuel, lastFuel) * 10) / 10,
+    costChange: Math.round(calculateChange(recentCost, prevCost) * 10) / 10,
+    distanceChange: Math.round(calculateChange(recentDistance, prevDistance) * 10) / 10,
+    efficiencyChange: Math.round(calculateChange(recentEfficiency, prevEfficiency) * 10) / 10,
+    fuelChange: Math.round(calculateChange(recentFuel, prevFuel) * 10) / 10,
   };
 }
 
