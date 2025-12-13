@@ -170,9 +170,6 @@ export default function Dashboard() {
                 </motion.div>
               )}
             </motion.div>
-
-            {/* Mobile Fuel Entry Modal */}
-            <FuelEntryModal vehicleId={selectedVehicle?.id} onSuccess={loadEntries} />
           </>
         )}
       </main>
