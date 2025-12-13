@@ -15,7 +15,7 @@ import {
 import { getFuelEntries, deleteFuelEntry } from '@/lib/services';
 import { exportToCSV } from '@/lib/csv';
 import type { FuelEntry, Vehicle } from '@/lib/types';
-import { Download, Trash2 } from 'lucide-react';
+import { Download, Trash2, History } from 'lucide-react';
 
 interface FuelHistoryProps {
   vehicleId?: string;
