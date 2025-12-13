@@ -106,7 +106,7 @@ export default function FuelHistory({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <Card className="p-12 text-center border-0 shadow-lg rounded-3xl bg-gradient-to-br from-stone-50 to-white dark:from-slate-800 dark:to-slate-900">
+          <Card className="p-12 text-center border-0 shadow-lg rounded-3xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
               <History className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             </div>
@@ -204,7 +204,7 @@ export default function FuelHistory({
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
-                  <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-white to-stone-50/50 dark:from-slate-800 dark:to-slate-900/50 backdrop-blur-sm">
+                  <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100/50 dark:from-slate-800 dark:to-slate-900/50 backdrop-blur-sm">
                     <div className="p-4">
                       {/* Header with Date and Actions */}
                       <div className="flex items-start justify-between mb-3">

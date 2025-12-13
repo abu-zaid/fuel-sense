@@ -78,7 +78,7 @@ export default function EfficiencyChart({
 
   if (loading) {
     return (
-      <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-stone-50 dark:from-slate-800 dark:via-blue-900/10 dark:to-slate-900 rounded-3xl overflow-hidden">
+      <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-stone-50 via-blue-50/30 to-stone-100 dark:from-slate-800 dark:via-blue-900/10 dark:to-slate-900 rounded-3xl overflow-hidden">
         <div className="h-[300px] rounded-2xl bg-gradient-to-br from-stone-200/20 to-stone-300/20 dark:from-slate-700/30 dark:to-slate-600/30 animate-pulse" />
       </Card>
     );
@@ -86,7 +86,7 @@ export default function EfficiencyChart({
 
   if (data.length === 0) {
     return (
-      <Card className="p-12 border-0 shadow-lg bg-gradient-to-br from-amber-50/50 via-white to-stone-50 dark:from-amber-900/10 dark:via-slate-800 dark:to-slate-900 rounded-3xl text-center">
+      <Card className="p-12 border-0 shadow-lg bg-gradient-to-br from-amber-50/50 via-stone-50 to-stone-100 dark:from-amber-900/10 dark:via-slate-800 dark:to-slate-900 rounded-3xl text-center">
         <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
           <TrendingUp className="w-8 h-8 text-amber-600 dark:text-amber-400" />
         </div>
@@ -101,7 +101,7 @@ export default function EfficiencyChart({
   }
 
   return (
-    <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-stone-50 dark:from-slate-800 dark:via-blue-900/10 dark:to-slate-900 rounded-3xl overflow-hidden backdrop-blur-sm outline-none focus:outline-none active:outline-none touch-manipulation">
+    <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-stone-50 via-blue-50/30 to-stone-100 dark:from-slate-800 dark:via-blue-900/10 dark:to-slate-900 rounded-3xl overflow-hidden backdrop-blur-sm outline-none focus:outline-none active:outline-none touch-manipulation">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-xl font-bold text-stone-900 dark:text-white flex items-center gap-2 mb-1">

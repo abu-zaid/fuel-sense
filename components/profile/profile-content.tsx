@@ -79,7 +79,7 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <Card className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-white to-stone-50 dark:from-slate-800 dark:to-slate-900">
+        <Card className="relative overflow-hidden border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
           <div className="relative p-6">
             <div className="flex items-center gap-4 mb-6">
@@ -138,7 +138,7 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
         >
-          <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-stone-50 dark:from-slate-800 dark:to-slate-900">
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
@@ -199,7 +199,7 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
-        <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-stone-50 dark:from-slate-800 dark:to-slate-900">
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
           <div className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
@@ -311,7 +311,7 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
-        <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-stone-50 dark:from-slate-800 dark:to-slate-900">
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
           <div className="p-6">
             <h3 className="text-lg font-bold text-stone-900 dark:text-white mb-4">Account Actions</h3>
             <Button

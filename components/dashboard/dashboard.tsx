@@ -82,7 +82,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-100 pb-24 md:pb-32">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-stone-100 to-stone-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 pb-24 md:pb-32">
       <Header onLogout={signOut} vehicles={vehicles} onImportSuccess={loadVehicles} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 md:py-8 pb-safe">
