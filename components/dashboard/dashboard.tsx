@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/app/providers';
 import { getVehicles, getFuelEntries } from '@/lib/services';
@@ -10,10 +10,17 @@ import VehicleSelector from '@/components/vehicles/vehicle-selector';
 import StatCards from '@/components/dashboard/stat-cards';
 import DashboardUI from './dashboard-ui';
 import FuelHistory from '@/components/entries/fuel-history';
-import EfficiencyChart from '@/components/charts/efficiency-chart';
-import CostChart from '@/components/charts/cost-chart';
 import FuelEntryModal from '@/components/entries/fuel-entry-modal';
 import { BarChart3, Zap, History } from 'lucide-react';
+
+// Lazy load heavy chart components
+const EfficiencyChart = lazy(() => import('@/components/charts/efficiency-chart'));
+const CostChart = lazy(() => import('@/components/charts/cost-chart'));
+
+// Loading fallback for charts
+const ChartSkeleton = () => (
+  <div className="h-[320px] rounded-3xl bg-gradient-to-br from-stone-100 to-stone-50 dark:from-slate-800 dark:to-slate-900 animate-pulse" />
+);
 
 export default function Dashboard() {
   const { signOut } = useAuth();
@@ -98,7 +105,9 @@ export default function Dashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <EfficiencyChart vehicleId={selectedVehicle?.id} compact />
+                  <Suspense fallback={<ChartSkeleton />}>
+                    <EfficiencyChart vehicleId={selectedVehicle?.id} compact />
+                  </Suspense>
                 </motion.div>
               )}
 
@@ -129,14 +138,18 @@ export default function Dashboard() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
                   >
-                    <EfficiencyChart vehicleId={selectedVehicle?.id} />
+                    <Suspense fallback={<ChartSkeleton />}>
+                      <EfficiencyChart vehicleId={selectedVehicle?.id} />
+                    </Suspense>
                   </motion.div>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.1 }}
                   >
-                    <CostChart vehicleId={selectedVehicle?.id} />
+                    <Suspense fallback={<ChartSkeleton />}>
+                      <CostChart vehicleId={selectedVehicle?.id} />
+                    </Suspense>
                   </motion.div>
                 </>
               )}

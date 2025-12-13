@@ -20,6 +20,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+        // Register service worker immediately but non-blocking
+        registerServiceWorker();
+
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -30,9 +33,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(session?.user ?? null);
           }
         );
-
-        // Register service worker
-        registerServiceWorker();
 
         return () => {
           authListener?.subscription?.unsubscribe();
