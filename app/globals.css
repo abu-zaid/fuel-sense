@@ -132,4 +132,20 @@
   .pb-safe {
     padding-bottom: calc(env(safe-area-inset-bottom, 0) + 0.75rem);
   }
+
+  /* Remove borders from Recharts elements */
+  .recharts-tooltip-wrapper,
+  .recharts-tooltip-wrapper *,
+  .recharts-active-dot,
+  .recharts-active-dot *,
+  .recharts-cursor,
+  .recharts-cursor * {
+    border: none !important;
+    outline: none !important;
+  }
+
+  /* Remove borders from tooltip content */
+  .recharts-tooltip-wrapper .recharts-tooltip-content {
+    border: none !important;
+  }
 }

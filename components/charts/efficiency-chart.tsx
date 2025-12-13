@@ -162,7 +162,7 @@ export default function EfficiencyChart({
             }}
           />
 
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '5 5', opacity: 0.3 }} />
+          <Tooltip content={<CustomTooltip />} cursor={false} />
 
           <Area
             type="monotone"
@@ -173,8 +173,7 @@ export default function EfficiencyChart({
             dot={false}
             activeDot={{ 
               r: 6, 
-              strokeWidth: 3, 
-              stroke: '#fff',
+              strokeWidth: 0, 
               fill: '#3b82f6',
               style: { filter: 'drop-shadow(0 4px 8px rgba(59, 130, 246, 0.4))' }
             }}

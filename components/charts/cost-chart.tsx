@@ -131,7 +131,7 @@ export default function CostChart({ vehicleId }: CostChartProps) {
             tickLine={false}
           />
 
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }} />
+          <Tooltip content={<CustomTooltip />} cursor={false} />
 
           <Bar 
             dataKey="cost" 
