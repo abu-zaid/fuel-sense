@@ -21,9 +21,6 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
 
-  // Output configuration for stable builds
-  output: 'standalone',
-
   // Generate ETags for better caching
   generateEtags: true,
 };

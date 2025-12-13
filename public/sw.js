@@ -59,7 +59,28 @@ self.addEventListener('fetch', (event) => {
     }
   }
 
-  // Cache-first strategy for static assets (fastest)
+  // For _next chunks, use network-first to avoid serving stale chunks
+  if (url.pathname.includes('/_next/static/chunks/')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => {
+              cache.put(request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // If network fails, try cache as fallback
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+
+  // Cache-first strategy for other static assets (fastest)
   if (isStaticAsset(url.href)) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
