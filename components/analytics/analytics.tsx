@@ -468,10 +468,10 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
                   return (
                     <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 p-3">
                       <p className="text-sm font-semibold text-stone-900 dark:text-white">
-                        Fuel: {payload[0].value}L
+                        Fuel: {Number(payload[0].value).toFixed(2)} L
                       </p>
                       <p className="text-sm font-semibold text-stone-900 dark:text-white">
-                        Efficiency: {payload[1].value} km/l
+                        Efficiency: {Number(payload[1].value).toFixed(2)} km/l
                       </p>
                     </div>
                   );
