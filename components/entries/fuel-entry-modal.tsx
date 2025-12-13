@@ -1,19 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import FuelEntryForm from '@/components/entries/fuel-entry-form';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import type { FuelEntry } from '@/lib/types';
 
 interface FuelEntryModalProps {
   vehicleId?: string;
   onSuccess: () => void;
+  editEntry?: FuelEntry | null;
+  isEditMode?: boolean;
+  onEditClose?: () => void;
 }
 
-export default function FuelEntryModal({ vehicleId, onSuccess }: FuelEntryModalProps) {
+export default function FuelEntryModal({ vehicleId, onSuccess, editEntry, isEditMode, onEditClose }: FuelEntryModalProps) {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (isEditMode && editEntry) {
+      setOpen(true);
+    }
+  }, [isEditMode, editEntry]);
+
+  const handleClose = (value: boolean) => {
+    setOpen(value);
+    if (!value && isEditMode && onEditClose) {
+      onEditClose();
+    }
+  };
 
   if (!vehicleId) return null;
 
@@ -43,7 +60,7 @@ export default function FuelEntryModal({ vehicleId, onSuccess }: FuelEntryModalP
       </motion.div>
 
       {/* Modal */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-h-[90vh] overflow-y-auto rounded-2xl">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -56,9 +73,14 @@ export default function FuelEntryModal({ vehicleId, onSuccess }: FuelEntryModalP
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <DialogTitle className="text-xl font-bold">Add Fuel Entry</DialogTitle>
+                <DialogTitle className="text-xl font-bold">
+                  {editEntry ? 'Edit Fuel Entry' : 'Add Fuel Entry'}
+                </DialogTitle>
                 <DialogDescription className="text-stone-600 dark:text-stone-400">
-                  Record your fuel refill details with automatic distance calculation
+                  {editEntry 
+                    ? 'Update your fuel entry details'
+                    : 'Record your fuel refill details with automatic distance calculation'
+                  }
                 </DialogDescription>
               </motion.div>
             </DialogHeader>
@@ -70,9 +92,11 @@ export default function FuelEntryModal({ vehicleId, onSuccess }: FuelEntryModalP
             >
               <FuelEntryForm
                 vehicleId={vehicleId}
+                editEntry={editEntry}
                 onSuccess={() => {
                   setOpen(false);
                   onSuccess();
+                  if (onEditClose) onEditClose();
                 }}
               />
             </motion.div>

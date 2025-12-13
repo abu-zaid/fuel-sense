@@ -15,7 +15,8 @@ import {
 import { getFuelEntries, deleteFuelEntry } from '@/lib/services';
 import { exportToCSV } from '@/lib/csv';
 import type { FuelEntry, Vehicle } from '@/lib/types';
-import { Download, Trash2, History } from 'lucide-react';
+import { Download, Trash2, History, Edit } from 'lucide-react';
+import FuelEntryModal from './fuel-entry-modal';
 
 interface FuelHistoryProps {
   vehicleId?: string;
@@ -30,6 +31,7 @@ export default function FuelHistory({
 }: FuelHistoryProps) {
   const [entries, setEntries] = useState<FuelEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingEntry, setEditingEntry] = useState<FuelEntry | null>(null);
 
   useEffect(() => {
     loadEntries();
@@ -162,14 +164,24 @@ export default function FuelHistory({
                               {entry.efficiency.toFixed(2)} km/l
                             </TableCell>
                             <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDelete(entry.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setEditingEntry(entry)}
+                                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDelete(entry.id)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </motion.tr>
                         ))}
@@ -194,7 +206,7 @@ export default function FuelHistory({
                 >
                   <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-white to-stone-50/50 dark:from-slate-800 dark:to-slate-900/50 backdrop-blur-sm">
                     <div className="p-4">
-                      {/* Header with Date and Delete */}
+                      {/* Header with Date and Actions */}
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <p className="text-sm font-medium text-stone-600 dark:text-stone-400">
@@ -206,14 +218,24 @@ export default function FuelHistory({
                             })}
                           </p>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(entry.id)}
-                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingEntry(entry)}
+                            className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(entry.id)}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
 
                       {/* Main Stats Grid */}
@@ -251,6 +273,20 @@ export default function FuelHistory({
             </AnimatePresence>
           </div>
         </>
+      )}
+
+      {/* Edit Modal */}
+      {editingEntry && (
+        <FuelEntryModal
+          vehicleId={vehicleId}
+          editEntry={editingEntry}
+          isEditMode={true}
+          onEditClose={() => setEditingEntry(null)}
+          onSuccess={() => {
+            loadEntries();
+            onDataChange();
+          }}
+        />
       )}
     </div>
   );

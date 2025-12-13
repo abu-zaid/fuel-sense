@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { addFuelEntry, getFuelEntries } from '@/lib/services';
+import { addFuelEntry, getFuelEntries, updateFuelEntry } from '@/lib/services';
+import type { FuelEntry } from '@/lib/types';
 
 interface FuelEntryFormProps {
   vehicleId: string;
   onSuccess: () => void;
+  editEntry?: FuelEntry | null;
 }
 
-export default function FuelEntryForm({ vehicleId, onSuccess }: FuelEntryFormProps) {
+export default function FuelEntryForm({ vehicleId, onSuccess, editEntry }: FuelEntryFormProps) {
   const [odo, setOdo] = useState('');
   const [petrolPrice, setPetrolPrice] = useState('');
   const [amount, setAmount] = useState('');
@@ -19,8 +21,16 @@ export default function FuelEntryForm({ vehicleId, onSuccess }: FuelEntryFormPro
   const [lastOdo, setLastOdo] = useState<number | null>(null);
 
   useEffect(() => {
-    loadLastOdometer();
-  }, [vehicleId]);
+    if (editEntry) {
+      // Pre-fill form with existing entry data
+      setOdo(editEntry.odo.toString());
+      setPetrolPrice(editEntry.petrol_price.toString());
+      setAmount(editEntry.amount.toString());
+      setDistance(editEntry.distance.toString());
+    } else {
+      loadLastOdometer();
+    }
+  }, [vehicleId, editEntry]);
 
   const loadLastOdometer = async () => {
     try {
@@ -49,13 +59,25 @@ export default function FuelEntryForm({ vehicleId, onSuccess }: FuelEntryFormPro
     setLoading(true);
 
     try {
-      await addFuelEntry(
-        vehicleId,
-        parseFloat(odo),
-        parseFloat(petrolPrice),
-        parseFloat(amount),
-        parseFloat(distance)
-      );
+      if (editEntry) {
+        // Update existing entry
+        await updateFuelEntry(
+          editEntry.id,
+          parseFloat(odo),
+          parseFloat(petrolPrice),
+          parseFloat(amount),
+          parseFloat(distance)
+        );
+      } else {
+        // Add new entry
+        await addFuelEntry(
+          vehicleId,
+          parseFloat(odo),
+          parseFloat(petrolPrice),
+          parseFloat(amount),
+          parseFloat(distance)
+        );
+      }
       
       setOdo('');
       setPetrolPrice('');
@@ -63,7 +85,7 @@ export default function FuelEntryForm({ vehicleId, onSuccess }: FuelEntryFormPro
       setDistance('');
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add entry');
+      setError(err instanceof Error ? err.message : 'Failed to save entry');
     } finally {
       setLoading(false);
     }
@@ -187,10 +209,10 @@ export default function FuelEntryForm({ vehicleId, onSuccess }: FuelEntryFormPro
         {loading ? (
           <span className="flex items-center justify-center">
             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-            Adding...
+            {editEntry ? 'Updating...' : 'Adding...'}
           </span>
         ) : (
-          'Add Fuel Entry'
+          editEntry ? 'Update Fuel Entry' : 'Add Fuel Entry'
         )}
       </Button>
     </motion.div>
