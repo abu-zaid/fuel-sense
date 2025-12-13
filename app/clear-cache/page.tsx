@@ -6,34 +6,45 @@ import { Button } from '@/components/ui/button';
 export default function ClearCachePage() {
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
+  const [autoCleared, setAutoCleared] = useState(false);
+
+  // Auto-clear on mount for easier recovery
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('auto') === 'true' && !autoCleared) {
+      clearAllCaches();
+      setAutoCleared(true);
+    }
+  }, [autoCleared]);
 
   const clearAllCaches = async () => {
     setLoading(true);
-    setStatus('Clearing caches...');
+    setStatus('🧹 Clearing all caches...');
 
     try {
       // Clear all caches
       const cacheNames = await caches.keys();
+      setStatus(`🧹 Deleting ${cacheNames.length} caches...`);
       await Promise.all(cacheNames.map(name => caches.delete(name)));
       
       // Unregister all service workers
       if ('serviceWorker' in navigator) {
         const registrations = await navigator.serviceWorker.getRegistrations();
+        setStatus(`🔧 Unregistering ${registrations.length} service workers...`);
         await Promise.all(registrations.map(reg => reg.unregister()));
       }
 
       // Clear localStorage
       localStorage.clear();
       
-      setStatus('✅ All caches cleared! Reloading...');
+      setStatus('✅ All caches cleared! Reloading in 2 seconds...');
       
       // Force reload from server
       setTimeout(() => {
-        window.location.href = window.location.href + '?nocache=' + Date.now();
-      }, 1000);
+        window.location.href = '/?t=' + Date.now();
+      }, 2000);
     } catch (err) {
       setStatus('❌ Error: ' + (err as Error).message);
-    } finally {
       setLoading(false);
     }
   };
@@ -51,14 +62,17 @@ export default function ClearCachePage() {
         </div>
 
         <div className="space-y-4">
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <p className="text-sm text-blue-900 dark:text-blue-100">
-              This will:
+          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <p className="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-2">
+              ⚠️ Seeing a blank screen or errors?
+            </p>
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              This recovery page will fix cache issues by:
               <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Clear all cached data</li>
-                <li>Unregister service workers</li>
-                <li>Clear localStorage</li>
-                <li>Force reload from server</li>
+                <li>Deleting all cached files</li>
+                <li>Removing problematic service workers</li>
+                <li>Clearing local storage</li>
+                <li>Force reloading fresh content</li>
               </ul>
             </p>
           </div>
@@ -72,11 +86,17 @@ export default function ClearCachePage() {
           <Button
             onClick={clearAllCaches}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700"
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
             size="lg"
           >
-            {loading ? 'Clearing...' : 'Clear All Caches & Reload'}
+            {loading ? 'Clearing...' : '🔄 Fix App Now'}
           </Button>
+
+          <div className="text-center text-xs text-stone-500 dark:text-stone-400">
+            Or visit: <code className="bg-stone-200 dark:bg-slate-700 px-2 py-1 rounded">/clear-cache?auto=true</code>
+            <br />
+            for automatic clearing
+          </div>
 
           <Button
             onClick={() => window.location.href = '/'}
