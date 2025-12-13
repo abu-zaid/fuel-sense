@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { registerServiceWorker } from './register-sw';
+import { LazyMotion, domAnimation } from 'framer-motion';
 
 interface AuthContextType {
   user: User | null;
@@ -52,7 +53,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, loading, signOut }}>
-      {children}
+      <LazyMotion features={domAnimation} strict>
+        {children}
+      </LazyMotion>
     </AuthContext.Provider>
   );
 }

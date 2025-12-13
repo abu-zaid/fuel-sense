@@ -47,8 +47,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="format-detection" content="telephone=no" />
+      </head>
       <body
         className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-gradient-to-br from-stone-50 to-stone-100 text-stone-900`}
+        suppressHydrationWarning
       >
         <AuthProvider>{children}</AuthProvider>
       </body>

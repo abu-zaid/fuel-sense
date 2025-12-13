@@ -16,6 +16,11 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
   },
 
+  // Compiler options for better browser support
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
+
   // Use webpack explicitly (Turbopack is default in Next.js 16)
   // Add empty turbopack config to avoid conflicts
   turbopack: {},

@@ -1,5 +1,10 @@
 import { Variants } from 'framer-motion';
 
+// Check if user prefers reduced motion
+const prefersReducedMotion = typeof window !== 'undefined' 
+  ? window.matchMedia('(prefers-reduced-motion: reduce)').matches 
+  : false;
+
 // Common animation variants for reuse across components
 export const animations = {
   // Fade animations

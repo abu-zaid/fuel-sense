@@ -1,9 +1,25 @@
+// Polyfill for requestIdleCallback
+if (typeof window !== 'undefined' && !('requestIdleCallback' in window)) {
+  (window as any).requestIdleCallback = function (cb: IdleRequestCallback) {
+    const start = Date.now();
+    return setTimeout(function () {
+      cb({
+        didTimeout: false,
+        timeRemaining: function () {
+          return Math.max(0, 50 - (Date.now() - start));
+        },
+      });
+    }, 1);
+  };
+}
+
 export async function registerServiceWorker() {
   if (typeof window === 'undefined') {
     return;
   }
 
-  if (!navigator.serviceWorker) {
+  if (!('serviceWorker' in navigator)) {
+    console.log('Service Worker not supported in this browser');
     return;
   }
 
@@ -26,10 +42,23 @@ async function registerSW() {
       updateViaCache: 'none',
     });
 
+    console.log('Service Worker registered successfully');
+
     // Check for updates less frequently to reduce overhead
-    setInterval(() => {
-      registration.update();
-    }, 300000); // Check every 5 minutes instead of every minute
+    const updateInterval = setInterval(() => {
+      if (registration && registration.update) {
+        registration.update().catch(err => {
+          console.warn('Service Worker update check failed:', err);
+        });
+      }
+    }, 300000); // Check every 5 minutes
+
+    // Clean up interval on page unload
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', () => {
+        clearInterval(updateInterval);
+      });
+    }
 
     // Listen for updates
     registration.addEventListener('updatefound', () => {
@@ -45,5 +74,6 @@ async function registerSW() {
     });
   } catch (error) {
     console.error('Service Worker registration failed:', error);
+    // Don't throw - app should work without SW
   }
 }
