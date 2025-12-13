@@ -41,7 +41,7 @@ export default function AuthPage() {
       <div className="w-full max-w-md">
         <Card className="p-8 border-0 shadow-lg">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-stone-900 mb-2">Fuel Tracker</h1>
+            <h1 className="text-3xl font-bold text-stone-900 mb-2">FuelSense</h1>
             <p className="text-stone-600">Track your vehicle fuel consumption</p>
           </div>
 

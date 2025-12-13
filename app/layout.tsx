@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Fuel Tracker - Track Your Vehicle Fuel Consumption',
+  title: 'FuelSense - Track Your Vehicle Fuel Consumption',
   description: 'A beautiful, minimal fuel tracking app for vehicles',
   manifest: '/manifest.json',
   themeColor: '#f8f6f1',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Fuel Tracker',
+    title: 'FuelSense',
   },
 };
 

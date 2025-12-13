@@ -26,24 +26,19 @@ export default function FuelEntryModal({ vehicleId, onSuccess }: FuelEntryModalP
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.2 }}
       >
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+        <Button
+          onClick={() => setOpen(true)}
+          size="lg"
+          className="rounded-full h-16 w-16 shadow-lg hover:shadow-2xl active:scale-95 transition-all duration-300 ease-in-out bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 group touch-manipulation"
+          type="button"
         >
-          <Button
-            onClick={() => setOpen(true)}
-            size="lg"
-            className="rounded-full h-16 w-16 shadow-lg hover:shadow-2xl active:scale-95 transition-all duration-300 ease-in-out bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 group"
+          <motion.div
+            animate={{ rotate: [0, 90, 360] }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
-            <motion.div
-              animate={{ rotate: [0, 90, 360] }}
-              transition={{ duration: 0.5, ease: 'easeInOut' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Plus className="w-8 h-8" />
-            </motion.div>
-          </Button>
-        </motion.div>
+            <Plus className="w-8 h-8" />
+          </motion.div>
+        </Button>
       </motion.div>
 
       {/* Modal */}

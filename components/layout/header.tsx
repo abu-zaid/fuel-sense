@@ -27,7 +27,7 @@ export default function Header({ onLogout, vehicles = [], onImportSuccess }: Hea
         <div className="flex items-center gap-2 group">
           <span className="text-3xl transition-transform group-hover:scale-110 group-hover:rotate-12">⛽</span>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent transition-all group-hover:from-blue-500 group-hover:to-blue-400">
-            Fuel Tracker
+            FuelSense
           </h1>
         </div>
 
