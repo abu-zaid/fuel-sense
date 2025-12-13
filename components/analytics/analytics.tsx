@@ -339,15 +339,15 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
           Monthly Cost & Distance Analysis
         </h3>
         <ResponsiveContainer width="100%" height={300}>
-          <ComposedChart data={monthlyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-            <YAxis yAxisId="left" stroke="#3b82f6" fontSize={12} />
-            <YAxis yAxisId="right" orientation="right" stroke="#10b981" fontSize={12} />
-            <Tooltip content={<CustomTooltip />} />
+          <ComposedChart data={monthlyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
+            <XAxis dataKey="month" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <YAxis yAxisId="left" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <YAxis yAxisId="right" orientation="right" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
             <Legend />
-            <Bar yAxisId="left" dataKey="totalCost" fill="#3b82f6" name="Total Cost (₹)" radius={[8, 8, 0, 0]} />
-            <Line yAxisId="right" type="monotone" dataKey="totalDistance" stroke="#10b981" strokeWidth={3} name="Distance (km)" />
+            <Bar yAxisId="left" dataKey="totalCost" fill="#3b82f6" name="Total Cost (₹)" radius={[12, 12, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
+            <Line yAxisId="right" type="monotone" dataKey="totalDistance" stroke="#10b981" strokeWidth={3} name="Distance (km)" dot={false} activeDot={{ r: 6, strokeWidth: 0, fill: '#10b981' }} animationDuration={1000} animationEasing="ease-out" />
           </ComposedChart>
         </ResponsiveContainer>
       </Card>
@@ -358,24 +358,29 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
           Cost per Kilometer Trend
         </h3>
         <ResponsiveContainer width="100%" height={250}>
-          <AreaChart data={monthlyData}>
+          <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id="costPerKmGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.4}/>
+                <stop offset="50%" stopColor="#8b5cf6" stopOpacity={0.2}/>
+                <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-            <YAxis stroke="#94a3b8" fontSize={12} />
-            <Tooltip content={<CustomTooltip />} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
+            <XAxis dataKey="month" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <YAxis stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
             <Area 
               type="monotone" 
               dataKey="costPerKm" 
               stroke="#8b5cf6" 
-              strokeWidth={2}
+              strokeWidth={3} 
               fill="url(#costPerKmGradient)" 
-              name="Cost/km (₹)"
+              name="Cost per KM (₹)"
+              dot={false}
+              activeDot={{ r: 6, strokeWidth: 0, fill: '#8b5cf6' }}
+              animationDuration={1000}
+              animationEasing="ease-out"
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -387,28 +392,33 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
           Fuel Price Trend & Moving Average
         </h3>
         <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={priceData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-            <YAxis stroke="#94a3b8" fontSize={12} />
-            <Tooltip content={<CustomTooltip />} />
+          <LineChart data={priceData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
+            <XAxis dataKey="date" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <YAxis stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
             <Legend />
             <Line 
               type="monotone" 
               dataKey="price" 
               stroke="#f97316" 
-              strokeWidth={2}
-              dot={{ fill: '#f97316', r: 3 }}
+              strokeWidth={3}
+              dot={false}
+              activeDot={{ r: 6, strokeWidth: 0, fill: '#f97316' }}
               name="Price (₹/L)"
+              animationDuration={1000}
+              animationEasing="ease-out"
             />
             <Line 
               type="monotone" 
               dataKey="movingAvg" 
               stroke="#06b6d4" 
-              strokeWidth={2}
+              strokeWidth={3}
               strokeDasharray="5 5"
               dot={false}
               name="Moving Avg"
+              animationDuration={1000}
+              animationEasing="ease-out"
             />
           </LineChart>
         </ResponsiveContainer>
@@ -420,12 +430,12 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
           Monthly Fuel Efficiency
         </h3>
         <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={monthlyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-            <YAxis stroke="#94a3b8" fontSize={12} />
-            <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="avgEfficiency" fill="#10b981" name="Avg Efficiency (km/l)" radius={[8, 8, 0, 0]}>
+          <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
+            <XAxis dataKey="month" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <YAxis stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+            <Tooltip content={<CustomTooltip />} cursor={false} />
+            <Bar dataKey="avgEfficiency" fill="#10b981" name="Avg Efficiency (km/l)" radius={[12, 12, 0, 0]} animationDuration={1000} animationEasing="ease-out">
               {monthlyData.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
@@ -443,26 +453,30 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
           Efficiency vs Fuel Consumption Pattern
         </h3>
         <ResponsiveContainer width="100%" height={300}>
-          <ScatterChart>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <ScatterChart margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
             <XAxis 
               type="number" 
               dataKey="fuel_used" 
               name="Fuel Used" 
               unit="L" 
-              stroke="#94a3b8" 
-              fontSize={12}
+              stroke="rgba(148, 163, 184, 0.4)" 
+              tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }}
+              axisLine={false}
+              tickLine={false}
             />
             <YAxis 
               type="number" 
               dataKey="efficiency" 
               name="Efficiency" 
               unit="km/l" 
-              stroke="#94a3b8" 
-              fontSize={12}
+              stroke="rgba(148, 163, 184, 0.4)" 
+              tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }}
+              axisLine={false}
+              tickLine={false}
             />
             <Tooltip 
-              cursor={{ strokeDasharray: '3 3' }}
+              cursor={false}
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   return (

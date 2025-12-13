@@ -252,29 +252,6 @@ export default function Dashboard() {
                   </span>
                 </motion.button>
                 
-                {/* Central Add Fuel Button */}
-                <motion.button
-                  onClick={() => router.push('/add-fuel')}
-                  whileTap={{ scale: 0.9 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="relative -mt-8 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl shadow-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 touch-manipulation"
-                >
-                  <motion.div
-                    initial={{ rotate: 0 }}
-                    whileHover={{ rotate: 90 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                    </svg>
-                  </motion.div>
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
-                  </div>
-                </motion.button>
-                
                 <motion.button
                   onClick={() => setActiveTab('history')}
                   whileTap={{ scale: 0.95 }}

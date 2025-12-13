@@ -279,46 +279,53 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
               <h4 className="text-sm font-semibold text-stone-900 dark:text-white mb-4">Trend Over Time</h4>
               <ResponsiveContainer width="100%" height={250}>
                 {type === 'efficiency' ? (
-                  <AreaChart data={trendData}>
+                  <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                     <defs>
                       <linearGradient id={`color${type}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={getColor()} stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor={getColor()} stopOpacity={0}/>
+                        <stop offset="0%" stopColor={getColor()} stopOpacity={0.4}/>
+                        <stop offset="50%" stopColor={getColor()} stopOpacity={0.2}/>
+                        <stop offset="100%" stopColor={getColor()} stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-                    <YAxis stroke="#94a3b8" fontSize={12} />
-                    <Tooltip content={<CustomTooltip />} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
+                    <XAxis dataKey="date" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+                    <YAxis stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<CustomTooltip />} cursor={false} />
                     <Area 
                       type="monotone" 
                       dataKey="value" 
                       stroke={getColor()} 
-                      strokeWidth={2}
-                      fill={`url(#color${type})`} 
+                      strokeWidth={3}
+                      fill={`url(#color${type})`}
+                      dot={false}
+                      activeDot={{ r: 6, strokeWidth: 0, fill: getColor() }}
+                      animationDuration={1000}
+                      animationEasing="ease-out"
                     />
                   </AreaChart>
                 ) : type === 'cost' ? (
-                  <BarChart data={trendData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-                    <YAxis stroke="#94a3b8" fontSize={12} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="value" fill={getColor()} radius={[8, 8, 0, 0]} />
+                  <BarChart data={trendData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
+                    <XAxis dataKey="date" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+                    <YAxis stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<CustomTooltip />} cursor={false} />
+                    <Bar dataKey="value" fill={getColor()} radius={[12, 12, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
                   </BarChart>
                 ) : (
-                  <LineChart data={trendData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-                    <YAxis stroke="#94a3b8" fontSize={12} />
-                    <Tooltip content={<CustomTooltip />} />
+                  <LineChart data={trendData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
+                    <XAxis dataKey="date" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+                    <YAxis stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<CustomTooltip />} cursor={false} />
                     <Line 
                       type="monotone" 
                       dataKey="value" 
                       stroke={getColor()} 
                       strokeWidth={3}
-                      dot={{ fill: getColor(), r: 4 }}
-                      activeDot={{ r: 6 }}
+                      dot={false}
+                      activeDot={{ r: 6, strokeWidth: 0, fill: getColor() }}
+                      animationDuration={1000}
+                      animationEasing="ease-out"
                     />
                   </LineChart>
                 )}
