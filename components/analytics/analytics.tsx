@@ -152,7 +152,11 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
         const efficiencies = data.map(e => e.efficiency).filter(e => e > 0);
         const bestEff = Math.max(...efficiencies);
         const worstEff = Math.min(...efficiencies);
-        const avgCostKm = data.reduce((sum, e) => sum + (e.amount / (e.distance || 1)), 0) / data.length;
+        
+        // Calculate average cost per km correctly: total cost / total distance
+        const totalCost = data.reduce((sum, e) => sum + e.amount, 0);
+        const totalDistance = data.reduce((sum, e) => sum + e.distance, 0);
+        const avgCostKm = totalDistance > 0 ? totalCost / totalDistance : 0;
         
         // Recent trend analysis
         const recentEntries = data.slice(0, 10);
