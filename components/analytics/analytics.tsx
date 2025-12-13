@@ -299,7 +299,7 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
       </div>
 
       {/* Monthly Projections */}
-      <Card className="p-6">
+      <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900 rounded-3xl">
         <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4 flex items-center gap-2">
           <Calendar className="w-6 h-6 text-blue-600" />
           Monthly Projections (Based on Last 30 Days)
@@ -334,7 +334,7 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
       </Card>
 
       {/* Monthly Cost vs Distance */}
-      <Card className="p-6">
+      <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-blue-50/30 to-stone-50 dark:from-blue-950/30 dark:to-slate-900 rounded-3xl">
         <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4">
           Monthly Cost & Distance Analysis
         </h3>
@@ -353,7 +353,7 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
       </Card>
 
       {/* Cost per KM Trend */}
-      <Card className="p-6">
+      <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-purple-50/30 to-stone-50 dark:from-purple-950/30 dark:to-slate-900 rounded-3xl">
         <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4">
           Cost per Kilometer Trend
         </h3>
@@ -382,7 +382,7 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
       </Card>
 
       {/* Fuel Price Analysis */}
-      <Card className="p-6">
+      <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-amber-50/30 to-stone-50 dark:from-amber-950/30 dark:to-slate-900 rounded-3xl">
         <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4">
           Fuel Price Trend & Moving Average
         </h3>
@@ -415,7 +415,7 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
       </Card>
 
       {/* Monthly Efficiency */}
-      <Card className="p-6">
+      <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-green-50/30 to-stone-50 dark:from-green-950/30 dark:to-slate-900 rounded-3xl">
         <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4">
           Monthly Fuel Efficiency
         </h3>
@@ -438,7 +438,7 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
       </Card>
 
       {/* Efficiency vs Fuel Used Scatter */}
-      <Card className="p-6">
+      <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-teal-50/30 to-stone-50 dark:from-teal-950/30 dark:to-slate-900 rounded-3xl">
         <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4">
           Efficiency vs Fuel Consumption Pattern
         </h3>

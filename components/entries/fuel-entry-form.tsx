@@ -6,12 +6,13 @@ import { addFuelEntry, getFuelEntries, updateFuelEntry } from '@/lib/services';
 import type { FuelEntry } from '@/lib/types';
 
 interface FuelEntryFormProps {
-  vehicleId: string;
+  vehicleId?: string;
   onSuccess: () => void;
   editEntry?: FuelEntry | null;
+  standalone?: boolean;
 }
 
-export default function FuelEntryForm({ vehicleId, onSuccess, editEntry }: FuelEntryFormProps) {
+export default function FuelEntryForm({ vehicleId, onSuccess, editEntry, standalone = false }: FuelEntryFormProps) {
   const [odo, setOdo] = useState('');
   const [petrolPrice, setPetrolPrice] = useState('');
   const [amount, setAmount] = useState('');

@@ -78,7 +78,7 @@ export default function EfficiencyChart({
 
   if (loading) {
     return (
-      <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-stone-50 via-blue-50/30 to-stone-100 dark:from-slate-800 dark:via-blue-900/10 dark:to-slate-900 rounded-3xl overflow-hidden">
+      <Card className="p-6 border-0 shadow-2xl bg-gradient-to-br from-stone-50 via-blue-50/50 to-stone-100 dark:from-slate-800 dark:via-blue-900/20 dark:to-slate-900 rounded-3xl overflow-hidden">
         <div className="h-[300px] rounded-2xl bg-gradient-to-br from-stone-200/20 to-stone-300/20 dark:from-slate-700/30 dark:to-slate-600/30 animate-pulse" />
       </Card>
     );
