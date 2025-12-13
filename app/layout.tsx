@@ -53,7 +53,7 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body
-        className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-gradient-to-br from-stone-50 to-stone-100 text-stone-900`}
+        className={`${geist.variable} ${geistMono.variable} font-sans antialiased bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-950 dark:to-slate-900 text-stone-900 dark:text-slate-100`}
         suppressHydrationWarning
       >
         <BrowserDebugInfo />

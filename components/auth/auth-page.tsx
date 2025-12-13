@@ -55,42 +55,42 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-stone-50 to-stone-100">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-950 dark:to-slate-900">
       <div className="w-full max-w-md">
-        <Card className="p-8 border-0 shadow-lg">
+        <Card className="p-8 border-0 shadow-lg bg-white dark:bg-slate-800">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-stone-900 mb-2">FuelSense</h1>
-            <p className="text-stone-600">Track your vehicle fuel consumption</p>
+            <h1 className="text-3xl font-bold text-stone-900 dark:text-white mb-2">FuelSense</h1>
+            <p className="text-stone-600 dark:text-slate-400">Track your vehicle fuel consumption</p>
           </div>
 
           <form onSubmit={handleAuth} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">Email</label>
+              <label className="block text-sm font-medium text-stone-700 dark:text-slate-300 mb-2">Email</label>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 disabled={loading}
-                className="border-stone-200"
+                className="border-stone-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">Password</label>
+              <label className="block text-sm font-medium text-stone-700 dark:text-slate-300 mb-2">Password</label>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 disabled={loading}
-                className="border-stone-200"
+                className="border-stone-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
                 required
               />
             </div>
 
-            {error && <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>}
+            {error && <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">{error}</div>}
 
             <Button
               type="submit"
@@ -103,10 +103,10 @@ export default function AuthPage() {
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-stone-200"></div>
+              <div className="w-full border-t border-stone-200 dark:border-slate-700"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-stone-500">Or continue with</span>
+              <span className="bg-white dark:bg-slate-800 px-2 text-stone-500 dark:text-slate-400">Or continue with</span>
             </div>
           </div>
 
@@ -115,14 +115,14 @@ export default function AuthPage() {
             onClick={handleGoogleSignIn}
             disabled={loading}
             variant="outline"
-            className="w-full border-stone-200 hover:bg-stone-50"
+            className="w-full border-stone-200 dark:border-slate-600 hover:bg-stone-50 dark:hover:bg-slate-700 dark:text-white"
           >
             <Mail className="w-4 h-4 mr-2" />
             Sign in with Google
           </Button>
 
           <div className="mt-6 text-center">
-            <p className="text-stone-600 text-sm mb-3">
+            <p className="text-stone-600 dark:text-slate-400 text-sm mb-3">
               {isSignUp ? 'Already have an account?' : "Don't have an account?"}
             </p>
             <button
@@ -130,7 +130,7 @@ export default function AuthPage() {
                 setIsSignUp(!isSignUp);
                 setError('');
               }}
-              className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm"
             >
               {isSignUp ? 'Sign In' : 'Sign Up'}
             </button>

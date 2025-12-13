@@ -12,9 +12,9 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 to-stone-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-950 dark:to-slate-900">
         <div className="animate-spin">
-          <div className="w-12 h-12 border-4 border-stone-300 border-t-blue-500 rounded-full" />
+          <div className="w-12 h-12 border-4 border-stone-300 dark:border-slate-600 border-t-blue-500 dark:border-t-blue-400 rounded-full" />
         </div>
       </div>
     );
