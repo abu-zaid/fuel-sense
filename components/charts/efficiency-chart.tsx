@@ -9,13 +9,11 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  TooltipProps,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { getEfficiencyData } from '@/lib/services';
 import type { EfficiencyData } from '@/lib/types';
 import { TrendingUp } from 'lucide-react';
-import type { ValueType, NameType } from 'recharts/types/component/DefaultTooltipContent';
 
 interface EfficiencyChartProps {
   vehicleId?: string;
@@ -56,22 +54,44 @@ export default function EfficiencyChart({
     }
   };
 
+  // Custom Tooltip Component
+  const CustomTooltip = (props: any) => {
+    const { active, payload, label } = props;
+    if (active && payload && payload.length) {
+      const value = payload[0].value as number;
+      return (
+        <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-blue-500/10 border-0 p-4 min-w-[140px]">
+          <p className="text-xs font-medium text-stone-500 dark:text-stone-400 mb-2">{String(label)}</p>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-blue-500" />
+            <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
+              {value.toFixed(2)} <span className="text-sm font-normal text-stone-600 dark:text-stone-400">km/l</span>
+            </p>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   if (loading) {
     return (
-      <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-stone-50 to-stone-100 rounded-2xl overflow-hidden">
-        <div className="h-[300px] rounded-xl bg-gradient-to-br from-stone-200/30 to-stone-300/30" />
+      <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-stone-50 dark:from-slate-800 dark:via-blue-900/10 dark:to-slate-900 rounded-3xl overflow-hidden">
+        <div className="h-[300px] rounded-2xl bg-gradient-to-br from-stone-200/20 to-stone-300/20 dark:from-slate-700/30 dark:to-slate-600/30 animate-pulse" />
       </Card>
     );
   }
 
   if (data.length === 0) {
     return (
-      <Card className="p-12 border-0 shadow-sm bg-gradient-to-br from-amber-50 to-stone-50 rounded-2xl text-center">
-        <TrendingUp className="w-12 h-12 mx-auto text-amber-500 mb-3 opacity-50" />
-        <p className="text-stone-600 font-medium">
+      <Card className="p-12 border-0 shadow-lg bg-gradient-to-br from-amber-50/50 via-white to-stone-50 dark:from-amber-900/10 dark:via-slate-800 dark:to-slate-900 rounded-3xl text-center">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+          <TrendingUp className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+        </div>
+        <p className="text-stone-900 dark:text-stone-100 font-semibold text-lg">
           No efficiency data available yet
         </p>
-        <p className="text-stone-500 text-sm mt-1">
+        <p className="text-stone-600 dark:text-stone-400 text-sm mt-2">
           Add fuel entries to see trends
         </p>
       </Card>
@@ -79,16 +99,18 @@ export default function EfficiencyChart({
   }
 
   return (
-    <Card className="p-6 border-0 shadow-sm bg-gradient-to-br from-blue-50/50 to-stone-50 rounded-2xl overflow-hidden">
+    <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-white via-blue-50/30 to-stone-50 dark:from-slate-800 dark:via-blue-900/10 dark:to-slate-900 rounded-3xl overflow-hidden backdrop-blur-sm">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-stone-900 dark:text-white flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <h3 className="text-xl font-bold text-stone-900 dark:text-white flex items-center gap-2 mb-1">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/25">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
             Efficiency Trend
           </h3>
-          <p className="text-sm text-stone-600 mt-1">
+          <p className="text-sm text-stone-600 dark:text-stone-400 mt-2">
             Average:{' '}
-            <span className="font-semibold text-blue-600">
+            <span className="font-bold text-lg text-blue-600 dark:text-blue-400">
               {avgEfficiency} km/l
             </span>
           </p>
@@ -96,55 +118,68 @@ export default function EfficiencyChart({
       </div>
 
       <ResponsiveContainer width="100%" height={compact ? 200 : 320}>
-        <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <AreaChart 
+          data={data} 
+          margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+        >
           <defs>
             <linearGradient id="colorEfficiency" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.4} />
+              <stop offset="50%" stopColor="#3b82f6" stopOpacity={0.2} />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id="strokeEfficiency" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#3b82f6" />
+              <stop offset="100%" stopColor="#60a5fa" />
             </linearGradient>
           </defs>
 
-          <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" vertical={false} />
+          <CartesianGrid 
+            strokeDasharray="3 3" 
+            stroke="rgba(148, 163, 184, 0.2)" 
+            vertical={false}
+            strokeWidth={1}
+          />
 
           <XAxis
             dataKey="date"
-            stroke="#a8a29e"
-            tick={{ fill: '#a8a29e', fontSize: 12 }}
+            stroke="rgba(148, 163, 184, 0.4)"
+            tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }}
+            axisLine={false}
+            tickLine={false}
           />
 
           <YAxis
-            stroke="#a8a29e"
-            tick={{ fill: '#a8a29e', fontSize: 12 }}
+            stroke="rgba(148, 163, 184, 0.4)"
+            tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }}
+            axisLine={false}
+            tickLine={false}
             label={{
               value: 'km/l',
               angle: -90,
               position: 'insideLeft',
-              style: { fill: '#a8a29e' },
+              style: { fill: '#94a3b8', fontSize: 11, fontWeight: 500 },
             }}
           />
 
-          <Tooltip
-            contentStyle={{
-              backgroundColor: '#fafaf8',
-              border: '1px solid #d6d3d1',
-              borderRadius: '8px',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            }}
-            formatter={(value: ValueType, _name: NameType) => {
-              const numericValue = Number(value);
-              return [`${numericValue.toFixed(2)} km/l`, 'Efficiency'];
-            }}
-            labelStyle={{ color: '#78716c' }}
-          />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '5 5', opacity: 0.3 }} />
 
           <Area
             type="monotone"
             dataKey="efficiency"
-            stroke="#3b82f6"
-            strokeWidth={2.5}
+            stroke="url(#strokeEfficiency)"
+            strokeWidth={3}
             fill="url(#colorEfficiency)"
-            dot={{ fill: '#3b82f6', r: 4, strokeWidth: 2, stroke: '#fff' }}
-            activeDot={{ r: 6, strokeWidth: 2 }}
+            dot={false}
+            activeDot={{ 
+              r: 6, 
+              strokeWidth: 3, 
+              stroke: '#fff',
+              fill: '#3b82f6',
+              style: { filter: 'drop-shadow(0 4px 8px rgba(59, 130, 246, 0.4))' }
+            }}
+            animationDuration={1000}
+            animationEasing="ease-out"
           />
         </AreaChart>
       </ResponsiveContainer>

@@ -21,7 +21,8 @@ export default function FuelEntryModal({ vehicleId, onSuccess }: FuelEntryModalP
     <>
       {/* Plus Button - Mobile and Desktop */}
       <motion.div 
-        className="fixed bottom-32 right-4 md:bottom-24 md:right-8 z-40"
+        className="fixed bottom-28 right-4 md:bottom-24 md:right-8 z-40 safe-area-inset-bottom"
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 0.5rem)' }}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 200, damping: 20, delay: 0.2 }}

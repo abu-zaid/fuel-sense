@@ -68,10 +68,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-100 pb-32">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-100 pb-24 md:pb-32">
       <Header onLogout={signOut} vehicles={vehicles} onImportSuccess={loadVehicles} />
 
-      <main className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+      <main className="max-w-7xl mx-auto px-4 py-6 md:py-8 pb-safe">
         <VehicleSelector vehicles={vehicles} selected={selectedVehicle} onSelect={setSelectedVehicle} onVehiclesChange={loadVehicles} />
 
         {vehicles.length === 0 ? (
@@ -161,52 +161,108 @@ export default function Dashboard() {
       {/* Bottom iOS-style Navigation */}
       {vehicles.length > 0 && (
         <motion.div 
-          className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-t border-stone-200/50 dark:border-slate-700/50"
-          initial={{ y: 100 }}
-          animate={{ y: 0 }}
-          transition={{ duration: 0.3, type: 'spring', stiffness: 200 }}
+          className="fixed bottom-0 left-0 right-0 z-50 safe-area-inset-bottom"
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.4, type: 'spring', stiffness: 200, damping: 25 }}
         >
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-3 gap-1 p-2 px-3">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`flex flex-col items-center justify-center py-4 px-3 rounded-xl transition-all duration-300 ease-in-out group ${
-                  activeTab === 'overview'
-                    ? 'bg-gradient-to-br from-blue-100/80 to-blue-50/80 text-blue-600 shadow-md'
-                    : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100/50 dark:hover:bg-slate-800/50'
-                }`}
-              >
-                <div className={`mb-1 transition-all duration-300 ease-in-out ${activeTab === 'overview' ? 'scale-110' : 'group-hover:scale-110'}`}>
-                  <BarChart3 className="w-6 h-6" />
-                </div>
-                <span className="text-xs font-medium">Overview</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('charts')}
-                className={`flex flex-col items-center justify-center py-4 px-3 rounded-xl transition-all duration-300 ease-in-out group ${
-                  activeTab === 'charts'
-                    ? 'bg-gradient-to-br from-blue-100/80 to-blue-50/80 text-blue-600 shadow-md'
-                    : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100/50 dark:hover:bg-slate-800/50'
-                }`}
-              >
-                <div className={`mb-1 transition-all duration-300 ease-in-out ${activeTab === 'charts' ? 'scale-110' : 'group-hover:scale-110'}`}>
-                  <Zap className="w-6 h-6" />
-                </div>
-                <span className="text-xs font-medium">Analytics</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('history')}
-                className={`flex flex-col items-center justify-center py-4 px-3 rounded-xl transition-all duration-300 ease-in-out group ${
-                  activeTab === 'history'
-                    ? 'bg-gradient-to-br from-blue-100/80 to-blue-50/80 text-blue-600 shadow-md'
-                    : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100/50 dark:hover:bg-slate-800/50'
-                }`}
-              >
-                <div className={`mb-1 transition-all duration-300 ease-in-out ${activeTab === 'history' ? 'scale-110' : 'group-hover:scale-110'}`}>
-                  <History className="w-6 h-6" />
-                </div>
-                <span className="text-xs font-medium">History</span>
-              </button>
+          <div className="relative">
+            {/* Glassmorphism background with blur */}
+            <div className="absolute inset-0 backdrop-blur-2xl bg-gradient-to-t from-white/95 via-white/90 to-white/85 dark:from-slate-900/95 dark:via-slate-900/90 dark:to-slate-900/85 border-t border-stone-200/60 dark:border-slate-700/60 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.3)]" />
+            
+            {/* Content */}
+            <div className="relative max-w-7xl mx-auto">
+              <div className="grid grid-cols-3 gap-2 p-3 px-4 pb-safe">
+                <motion.button
+                  onClick={() => setActiveTab('overview')}
+                  whileTap={{ scale: 0.95 }}
+                  className={`relative flex flex-col items-center justify-center py-3 px-4 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation ${
+                    activeTab === 'overview'
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-stone-600 dark:text-stone-400'
+                  }`}
+                >
+                  {activeTab === 'overview' && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-100/90 to-blue-50/90 dark:from-blue-900/30 dark:to-blue-800/20 shadow-lg shadow-blue-500/10"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  <div className={`relative mb-1.5 transition-all duration-300 ease-in-out ${
+                    activeTab === 'overview' 
+                      ? 'scale-110' 
+                      : 'group-active:scale-110 group-hover:scale-105'
+                  }`}>
+                    <BarChart3 className={`w-6 h-6 ${activeTab === 'overview' ? 'drop-shadow-sm' : ''}`} />
+                  </div>
+                  <span className={`relative text-xs font-semibold transition-all duration-300 ${
+                    activeTab === 'overview' ? 'scale-105' : ''
+                  }`}>
+                    Overview
+                  </span>
+                </motion.button>
+                
+                <motion.button
+                  onClick={() => setActiveTab('charts')}
+                  whileTap={{ scale: 0.95 }}
+                  className={`relative flex flex-col items-center justify-center py-3 px-4 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation ${
+                    activeTab === 'charts'
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-stone-600 dark:text-stone-400'
+                  }`}
+                >
+                  {activeTab === 'charts' && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-100/90 to-blue-50/90 dark:from-blue-900/30 dark:to-blue-800/20 shadow-lg shadow-blue-500/10"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  <div className={`relative mb-1.5 transition-all duration-300 ease-in-out ${
+                    activeTab === 'charts' 
+                      ? 'scale-110' 
+                      : 'group-active:scale-110 group-hover:scale-105'
+                  }`}>
+                    <Zap className={`w-6 h-6 ${activeTab === 'charts' ? 'drop-shadow-sm' : ''}`} />
+                  </div>
+                  <span className={`relative text-xs font-semibold transition-all duration-300 ${
+                    activeTab === 'charts' ? 'scale-105' : ''
+                  }`}>
+                    Analytics
+                  </span>
+                </motion.button>
+                
+                <motion.button
+                  onClick={() => setActiveTab('history')}
+                  whileTap={{ scale: 0.95 }}
+                  className={`relative flex flex-col items-center justify-center py-3 px-4 rounded-2xl transition-all duration-300 ease-in-out group touch-manipulation ${
+                    activeTab === 'history'
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-stone-600 dark:text-stone-400'
+                  }`}
+                >
+                  {activeTab === 'history' && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-100/90 to-blue-50/90 dark:from-blue-900/30 dark:to-blue-800/20 shadow-lg shadow-blue-500/10"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  <div className={`relative mb-1.5 transition-all duration-300 ease-in-out ${
+                    activeTab === 'history' 
+                      ? 'scale-110' 
+                      : 'group-active:scale-110 group-hover:scale-105'
+                  }`}>
+                    <History className={`w-6 h-6 ${activeTab === 'history' ? 'drop-shadow-sm' : ''}`} />
+                  </div>
+                  <span className={`relative text-xs font-semibold transition-all duration-300 ${
+                    activeTab === 'history' ? 'scale-105' : ''
+                  }`}>
+                    History
+                  </span>
+                </motion.button>
+              </div>
             </div>
           </div>
         </motion.div>
