@@ -44,6 +44,37 @@ async function registerSW() {
 
     console.log('Service Worker registered successfully');
 
+    // Register for periodic background sync
+    if ('periodicSync' in registration) {
+      try {
+        await (registration as any).periodicSync.register('sync-offline-data', {
+          minInterval: 12 * 60 * 60 * 1000, // 12 hours
+        });
+        console.log('Periodic background sync registered');
+      } catch (err) {
+        console.log('Periodic background sync registration failed:', err);
+      }
+    }
+
+    // Listen for updates
+    registration.addEventListener('updatefound', () => {
+      const newWorker = registration.installing;
+      if (newWorker) {
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // New service worker available
+            console.log('New service worker available. Refresh to update.');
+            
+            // Optionally show update notification
+            if (window.confirm('New version available! Reload to update?')) {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+              window.location.reload();
+            }
+          }
+        });
+      }
+    });
+
     // Check for updates less frequently to reduce overhead
     const updateInterval = setInterval(() => {
       if (registration && registration.update) {

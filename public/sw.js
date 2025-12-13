@@ -1,11 +1,14 @@
-const CACHE_NAME = 'fuelsense-v2';
-const STATIC_CACHE = 'fuelsense-static-v2';
-const RUNTIME_CACHE = 'fuelsense-runtime-v2';
+const CACHE_NAME = 'fuelsense-v3';
+const STATIC_CACHE = 'fuelsense-static-v3';
+const RUNTIME_CACHE = 'fuelsense-runtime-v3';
+const DATA_CACHE = 'fuelsense-data-v3';
+const OFFLINE_QUEUE = 'fuelsense-offline-queue-v3';
 
 // Assets to cache immediately on install
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
+  '/offline.html',
 ];
 
 // Cache strategies
@@ -21,6 +24,83 @@ const isApiRequest = (url) => {
   return url.includes('supabase.co') || url.includes('/api/');
 };
 
+const isDataRequest = (url) => {
+  return url.includes('/rest/v1/');
+};
+
+// Offline queue management
+let offlineQueue = [];
+
+const saveOfflineRequest = async (request) => {
+  const queue = await getOfflineQueue();
+  const requestData = {
+    url: request.url,
+    method: request.method,
+    headers: Object.fromEntries(request.headers.entries()),
+    body: request.method !== 'GET' ? await request.text() : null,
+    timestamp: Date.now(),
+  };
+  queue.push(requestData);
+  await saveQueue(queue);
+};
+
+const getOfflineQueue = async () => {
+  try {
+    const cache = await caches.open(OFFLINE_QUEUE);
+    const response = await cache.match('queue');
+    if (response) {
+      return await response.json();
+    }
+  } catch (err) {
+    console.log('Error getting offline queue:', err);
+  }
+  return [];
+};
+
+const saveQueue = async (queue) => {
+  try {
+    const cache = await caches.open(OFFLINE_QUEUE);
+    await cache.put('queue', new Response(JSON.stringify(queue)));
+  } catch (err) {
+    console.log('Error saving queue:', err);
+  }
+};
+
+const syncOfflineData = async () => {
+  const queue = await getOfflineQueue();
+  if (queue.length === 0) return;
+
+  const remainingQueue = [];
+  
+  for (const requestData of queue) {
+    try {
+      const response = await fetch(requestData.url, {
+        method: requestData.method,
+        headers: requestData.headers,
+        body: requestData.body,
+      });
+      
+      if (!response.ok) {
+        remainingQueue.push(requestData);
+      } else {
+        // Notify clients about successful sync
+        self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({
+              type: 'SYNC_SUCCESS',
+              data: requestData,
+            });
+          });
+        });
+      }
+    } catch (err) {
+      remainingQueue.push(requestData);
+    }
+  }
+  
+  await saveQueue(remainingQueue);
+};
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE).then((cache) => {
@@ -34,15 +114,18 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (![CACHE_NAME, STATIC_CACHE, RUNTIME_CACHE].includes(cacheName)) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (![CACHE_NAME, STATIC_CACHE, RUNTIME_CACHE, DATA_CACHE, OFFLINE_QUEUE].includes(cacheName)) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      syncOfflineData(), // Sync any offline data when SW activates
+    ])
   );
   self.clients.claim();
 });
@@ -51,10 +134,72 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests and same-origin check
-  if (request.method !== 'GET' || url.origin !== self.location.origin) {
-    // For API requests, use network only
+  // Handle non-GET requests (POST, PUT, DELETE)
+  if (request.method !== 'GET') {
     if (isApiRequest(url.href)) {
+      event.respondWith(
+        fetch(request.clone())
+          .then(response => response)
+          .catch(async () => {
+            // Save to offline queue if network fails
+            await saveOfflineRequest(request.clone());
+            
+            // Notify client about offline save
+            self.clients.matchAll().then(clients => {
+              clients.forEach(client => {
+                client.postMessage({
+                  type: 'OFFLINE_SAVE',
+                  message: 'Data saved offline. Will sync when online.',
+                });
+              });
+            });
+            
+            return new Response(
+              JSON.stringify({ 
+                offline: true, 
+                message: 'Saved offline. Will sync when connection is restored.' 
+              }),
+              { 
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+              }
+            );
+          })
+      );
+    }
+    return;
+  }
+
+  // Handle GET requests
+  if (url.origin !== self.location.origin) {
+    // For API GET requests, use network-first with cache fallback
+    if (isApiRequest(url.href) && isDataRequest(url.href)) {
+      event.respondWith(
+        fetch(request)
+          .then(response => {
+            if (response && response.status === 200) {
+              const responseToCache = response.clone();
+              caches.open(DATA_CACHE).then((cache) => {
+                cache.put(request, responseToCache);
+              });
+            }
+            return response;
+          })
+          .catch(() => {
+            return caches.match(request).then(cachedResponse => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              return new Response(
+                JSON.stringify({ offline: true, data: [] }),
+                { 
+                  status: 200,
+                  headers: { 'Content-Type': 'application/json' }
+                }
+              );
+            });
+          })
+      );
       return;
     }
   }
@@ -112,6 +257,52 @@ self.addEventListener('fetch', (event) => {
               cache.put(request, responseToCache);
             });
           }
+          return response;
+        }).catch(() => {
+          // If network fails and no cache, return offline page
+          return caches.match('/offline.html').then(offlinePage => {
+            return offlinePage || new Response('Offline', { status: 503 });
+          });
+        });
+
+        return cachedResponse || fetchPromise;
+      })
+    );
+    return;
+  }
+});
+
+// Listen for messages from clients
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === 'SYNC_NOW') {
+    syncOfflineData();
+  }
+});
+
+// Periodic background sync
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-offline-data') {
+    event.waitUntil(syncOfflineData());
+  }
+});
+
+// Listen for online event
+self.addEventListener('online', () => {
+  syncOfflineData();
+  
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'ONLINE',
+        message: 'Connection restored. Syncing data...',
+      });
+    });
+  });
+});
           return response;
         });
         return cachedResponse || fetchPromise;

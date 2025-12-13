@@ -31,6 +31,17 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadVehicles();
+    
+    // Handle PWA shortcuts
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get('action');
+    const tab = params.get('tab');
+    
+    if (action === 'add-fuel') {
+      setShowAddModal(true);
+    } else if (tab) {
+      setActiveTab(tab);
+    }
   }, []);
 
   useEffect(() => {

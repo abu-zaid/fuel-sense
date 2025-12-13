@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { AuthProvider } from './providers';
 import BrowserDebugInfo from '@/components/debug/browser-debug';
 import ErrorBoundary from '@/components/error-boundary';
+import PWAInstallPrompt from '@/components/pwa/pwa-install-prompt';
 import './globals.css';
 
 const geist = Geist({
@@ -19,13 +20,25 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#f8f6f1',
+  userScalable: false,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f8f6f1' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
 };
 
 export const metadata: Metadata = {
   title: 'FuelSense - Track Your Vehicle Fuel Consumption',
-  description: 'A beautiful, minimal fuel tracking app for vehicles',
+  description: 'Track your vehicle fuel consumption with ease. Monitor efficiency, costs, and analytics offline.',
   manifest: '/manifest.json',
+  applicationName: 'FuelSense',
+  keywords: ['fuel tracker', 'vehicle', 'mileage', 'efficiency', 'car', 'bike', 'offline'],
+  authors: [{ name: 'FuelSense' }],
+  creator: 'FuelSense',
+  publisher: 'FuelSense',
+  formatDetection: {
+    telephone: false,
+  },
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
@@ -39,6 +52,12 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'FuelSense',
+    startupImage: [
+      { url: '/icon-512.png', media: '(device-width: 320px)' },
+    ],
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
   },
 };
 
@@ -58,7 +77,10 @@ export default function RootLayout({
       >
         <BrowserDebugInfo />
         <ErrorBoundary>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <PWAInstallPrompt />
+          </AuthProvider>
         </ErrorBoundary>
       </body>
     </html>
