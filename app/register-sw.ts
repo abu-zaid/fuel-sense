@@ -67,32 +67,22 @@ async function registerSW() {
             // New service worker available
             console.log('[App] New service worker installed and ready');
             
-            // Auto-reload to get the latest version (better UX for PWA)
-            // The user will see the latest version immediately
+            // Just skip waiting, don't force reload
             newWorker.postMessage({ type: 'SKIP_WAITING' });
-            
-            // Show a brief notification before reload
-            const shouldReload = window.confirm(
-              '🎉 New version available! The app will reload to update.'
-            );
-            
-            if (shouldReload) {
-              window.location.reload();
-            }
+            console.log('[App] New version will be active on next page load');
           }
         });
       }
     });
 
-    // Check for updates more aggressively during development
-    // Every 30 seconds to catch updates quickly
+    // Check for updates periodically (5 minutes)
     const updateInterval = setInterval(() => {
       if (registration && registration.update) {
         registration.update().catch(err => {
           console.warn('[App] Service Worker update check failed:', err);
         });
       }
-    }, 30000); // Check every 30 seconds
+    }, 300000); // Check every 5 minutes
 
     // Clean up interval on page unload
     if (typeof window !== 'undefined') {
