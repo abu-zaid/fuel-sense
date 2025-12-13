@@ -1,5 +1,5 @@
-// Update this version on each deployment to force cache refresh
-const VERSION = '1.0.' + Date.now();
+// This version is auto-generated during build
+const VERSION = '__VERSION__';
 const CACHE_NAME = `fuelsense-v${VERSION}`;
 const STATIC_CACHE = `fuelsense-static-v${VERSION}`;
 const RUNTIME_CACHE = `fuelsense-runtime-v${VERSION}`;
