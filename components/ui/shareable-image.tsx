@@ -110,10 +110,11 @@ export function ShareButton({ elementId, fileName, title }: ShareableImageProps)
   return (
     <button
       onClick={() => shareImage(elementId, fileName, title)}
-      className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium shadow-sm hover:shadow-md"
+      title="Share statistics"
     >
       <Share2 className="w-4 h-4" />
-      <span>Share</span>
+      <span className="hidden sm:inline">Share</span>
     </button>
   );
 }
@@ -125,10 +126,11 @@ export function DownloadButton({ elementId, fileName }: ShareableImageProps) {
   return (
     <button
       onClick={() => downloadImage(elementId, fileName)}
-      className="flex items-center gap-2 px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white rounded-lg transition-colors"
+      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-500 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-700 text-white rounded-lg transition-colors text-sm font-medium shadow-sm hover:shadow-md"
+      title="Download statistics"
     >
       <Download className="w-4 h-4" />
-      <span>Download</span>
+      <span className="hidden sm:inline">Download</span>
     </button>
   );
 }

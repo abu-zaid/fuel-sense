@@ -1,0 +1,252 @@
+/* Print Styles for Better Report Layouts */
+
+@media print {
+  /* Hide unnecessary elements */
+  header,
+  nav,
+  .no-print,
+  button,
+  [role="button"],
+  input,
+  textarea,
+  select {
+    display: none !important;
+  }
+
+  /* Reset page layout */
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+    margin: 0;
+    padding: 0;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  /* Page breaks */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .page-break-inside-avoid {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure charts and cards are visible */
+  .recharts-wrapper,
+  .recharts-surface {
+    max-width: 100% !important;
+  }
+
+  /* Card styling for print */
+  [class*="Card"],
+  [class*="card"] {
+    border: 1px solid #ddd !important;
+    background: white !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+
+  /* Table styling */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  th,
+  td {
+    padding: 8px;
+    border: 1px solid #ddd;
+  }
+
+  th {
+    background-color: #f5f5f5 !important;
+    font-weight: bold;
+  }
+
+  /* Statistics cards */
+  .stat-card {
+    display: inline-block;
+    width: 48%;
+    margin: 1%;
+    vertical-align: top;
+    page-break-inside: avoid;
+  }
+
+  /* Charts */
+  .chart-container {
+    page-break-inside: avoid;
+    margin: 1rem 0;
+  }
+
+  /* Links */
+  a[href]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.9em;
+    color: #666;
+  }
+
+  a[href^="#"]:after,
+  a[href^="javascript:"]:after {
+    content: "";
+  }
+
+  /* Headers and footers */
+  @page {
+    margin: 2cm;
+    
+    @top-center {
+      content: "Fuel Tracker Report";
+      font-size: 10pt;
+      color: #666;
+    }
+
+    @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 10pt;
+      color: #666;
+    }
+  }
+
+  /* Headings */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+    color: black !important;
+  }
+
+  h1 {
+    font-size: 24pt;
+    margin-bottom: 1rem;
+  }
+
+  h2 {
+    font-size: 18pt;
+    margin-bottom: 0.8rem;
+  }
+
+  h3 {
+    font-size: 14pt;
+    margin-bottom: 0.6rem;
+  }
+
+  /* Images */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Remove gradients and shadows */
+  * {
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Ensure dark mode colors are readable */
+  [class*="dark:"] {
+    color: black !important;
+    background: white !important;
+  }
+
+  /* Print-specific utilities */
+  .print-only {
+    display: block !important;
+  }
+
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Vehicle info for reports */
+  .vehicle-info {
+    border: 2px solid #333;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    page-break-inside: avoid;
+  }
+
+  /* Summary stats */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .summary-item {
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    page-break-inside: avoid;
+  }
+
+  /* Ensure proper spacing */
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+
+  /* Fuel entry rows */
+  .fuel-entry {
+    page-break-inside: avoid;
+    border-bottom: 1px solid #eee;
+    padding: 0.5rem 0;
+  }
+
+  /* Signatures and footer info */
+  .report-footer {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid #333;
+    page-break-inside: avoid;
+  }
+
+  /* Date stamp */
+  .print-date:after {
+    content: "Generated: " attr(data-date);
+    display: block;
+    text-align: right;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Print button styling (when not printing) */
+@media screen {
+  .print-button {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+  }
+}

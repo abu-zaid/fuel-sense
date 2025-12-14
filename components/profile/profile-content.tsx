@@ -10,6 +10,7 @@ import { LoadingSpinner } from '@/components/ui/animations';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AddVehicleDialog from '@/components/vehicles/add-vehicle-dialog';
+import ThemeSettings from './theme-settings';
 import { LogOut, User, Mail, Car, Calendar, Check, Moon, Sun, Monitor, Settings, Plus, Bike } from 'lucide-react';
 import type { Vehicle } from '@/lib/types';
 
@@ -355,6 +356,28 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
                 </div>
               </motion.button>
             </div>
+          </div>
+        </Card>
+      </motion.div>
+
+      {/* Theme Customization Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+      >
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-orange-600 flex items-center justify-center">
+                <Settings className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-stone-900 dark:text-white">Customization</h3>
+                <p className="text-sm text-stone-600 dark:text-stone-400">Personalize your experience</p>
+              </div>
+            </div>
+            <ThemeSettings />
           </div>
         </Card>
       </motion.div>

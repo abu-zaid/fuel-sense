@@ -5,6 +5,7 @@ import BrowserDebugInfo from '@/components/debug/browser-debug';
 import ErrorBoundary from '@/components/error-boundary';
 import PWAInstallPrompt from '@/components/pwa/pwa-install-prompt';
 import { ToastProvider } from '@/components/ui/toast';
+import { ThemeCustomizationProvider } from '@/lib/theme-customization';
 import './globals.css';
 
 const geist = Geist({
@@ -78,12 +79,14 @@ export default function RootLayout({
       >
         <BrowserDebugInfo />
         <ErrorBoundary>
-          <AuthProvider>
-            <ToastProvider>
-              {children}
-              <PWAInstallPrompt />
-            </ToastProvider>
-          </AuthProvider>
+          <ThemeCustomizationProvider>
+            <AuthProvider>
+              <ToastProvider>
+                {children}
+                <PWAInstallPrompt />
+              </ToastProvider>
+            </AuthProvider>
+          </ThemeCustomizationProvider>
         </ErrorBoundary>
       </body>
     </html>
