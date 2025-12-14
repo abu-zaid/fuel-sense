@@ -5,7 +5,6 @@ import { AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, Cartesia
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/animations';
-import { ShareButton, DownloadButton } from '@/components/ui/shareable-image';
 import { useEffect, useState } from 'react';
 import { getFuelEntries, getMonthlyCosts } from '@/lib/services';
 import type { FuelEntry, MonthlyCost } from '@/lib/types';
@@ -226,20 +225,7 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-bold">{getTitle()}</DialogTitle>
-            <div className="flex gap-2">
-              <ShareButton 
-                elementId="stat-modal-content" 
-                fileName={`${type}-stats.png`}
-                title={getTitle()}
-              />
-              <DownloadButton 
-                elementId="stat-modal-content" 
-                fileName={`${type}-stats.png`}
-              />
-            </div>
-          </div>
+          <DialogTitle className="text-2xl font-bold">{getTitle()}</DialogTitle>
         </DialogHeader>
 
         {loading ? (

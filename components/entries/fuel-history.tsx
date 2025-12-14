@@ -19,8 +19,6 @@ import { exportToCSV } from '@/lib/csv';
 import { hapticDelete, hapticButton, hapticToggle, hapticSuccess } from '@/lib/haptic';
 import { toast } from '@/components/ui/toast';
 import { EmptyState } from '@/components/ui/empty-state';
-import { PullToRefresh } from '@/components/ui/pull-to-refresh';
-import { SwipeActions } from '@/components/ui/swipe-actions';
 import type { FuelEntry, Vehicle } from '@/lib/types';
 import { Download, Trash2, History, Edit, Search, Filter, TrendingUp, TrendingDown, Calendar, DollarSign, Fuel, ArrowUpDown } from 'lucide-react';
 import FuelEntryModal from './fuel-entry-modal';
@@ -224,8 +222,7 @@ export default function FuelHistory({
   }
 
   return (
-    <PullToRefresh onRefresh={handleRefresh}>
-      <div className="space-y-4">
+    <div className="space-y-4">
         {/* Statistics Cards */}
         {entries.length > 0 && (
         <motion.div
@@ -511,14 +508,7 @@ export default function FuelHistory({
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
-                  <SwipeActions
-                    onEdit={() => setEditingEntry(entry)}
-                    onDelete={() => {
-                      hapticButton();
-                      setDeleteConfirm(entry.id);
-                    }}
-                  >
-                    <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100/50 dark:from-slate-800 dark:to-slate-900/50 backdrop-blur-sm">
+                  <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100/50 dark:from-slate-800 dark:to-slate-900/50 backdrop-blur-sm">
                       <div className="p-4">
                         {/* Header with Date */}
                         <div className="flex items-start justify-between mb-3">
@@ -564,7 +554,6 @@ export default function FuelHistory({
                       </div>
                       </div>
                     </Card>
-                  </SwipeActions>
                 </motion.div>
                 ))}
               </AnimatePresence>
@@ -656,7 +645,6 @@ export default function FuelHistory({
           </motion.div>
         )}
       </AnimatePresence>
-      </div>
-    </PullToRefresh>
+    </div>
   );
 }

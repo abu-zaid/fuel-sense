@@ -4,7 +4,6 @@ import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SwipeActions } from '@/components/ui/swipe-actions';
 import { Edit, Trash2 } from 'lucide-react';
 import type { FuelEntry } from '@/lib/types';
 
@@ -24,14 +23,10 @@ const FuelEntryCard = memo(({ entry, index, onEdit, onDelete }: FuelEntryCardPro
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3, delay: index * 0.05 }}
     >
-      <SwipeActions
-        onEdit={() => onEdit(entry)}
-        onDelete={() => onDelete(entry.id)}
-      >
-        <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100/50 dark:from-slate-800 dark:to-slate-900/50 backdrop-blur-sm">
-          <div className="p-4">
-            {/* Header with Date */}
-            <div className="flex items-start justify-between mb-3">
+      <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100/50 dark:from-slate-800 dark:to-slate-900/50 backdrop-blur-sm">
+        <div className="p-4">
+          {/* Header with Date */}
+          <div className="flex items-start justify-between mb-3">
               <div>
                 <p className="text-sm font-medium text-stone-600 dark:text-stone-400">
                   {new Date(entry.created_at).toLocaleDateString('en-US', { 
@@ -74,7 +69,6 @@ const FuelEntryCard = memo(({ entry, index, onEdit, onDelete }: FuelEntryCardPro
             </div>
           </div>
         </Card>
-      </SwipeActions>
     </motion.div>
   );
 }, (prevProps, nextProps) => {
