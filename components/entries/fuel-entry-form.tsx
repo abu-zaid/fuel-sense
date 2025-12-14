@@ -38,7 +38,7 @@ export default function FuelEntryForm({ vehicleId, onSuccess, editEntry, standal
 
   const loadLastOdometer = async () => {
     try {
-      const entries = await getFuelEntries(vehicleId, 1);
+      const { entries } = await getFuelEntries(vehicleId, 1);
       if (entries.length > 0) {
         setLastOdo(entries[0].odo);
       }

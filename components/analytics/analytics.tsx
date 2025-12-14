@@ -111,12 +111,12 @@ function Analytics({ vehicleId }: AnalyticsProps) {
   const loadAnalytics = async () => {
     try {
       setLoading(true);
-      const data = await getFuelEntries(vehicleId, 200);
-      setEntries(data);
+      const { entries } = await getFuelEntries(vehicleId, 200);
+      setEntries(entries);
       
       // Process monthly analytics
       const monthlyMap = new Map<string, FuelEntry[]>();
-      data.forEach(entry => {
+      entries.forEach(entry => {
         const date = new Date(entry.created_at);
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
         if (!monthlyMap.has(monthKey)) {
@@ -151,11 +151,11 @@ function Analytics({ vehicleId }: AnalyticsProps) {
       setMonthlyData(monthly);
 
       // Process price analysis with moving average
-      const prices: PriceAnalysis[] = data
+      const prices: PriceAnalysis[] = entries
         .map((entry, index) => {
           const windowSize = 5;
           const start = Math.max(0, index - windowSize + 1);
-          const window = data.slice(start, index + 1);
+          const window = entries.slice(start, index + 1);
           const movingAvg = window.reduce((sum, e) => sum + e.petrol_price, 0) / window.length;
           
           return {
@@ -170,19 +170,19 @@ function Analytics({ vehicleId }: AnalyticsProps) {
       setPriceData(prices);
 
       // Calculate insights
-      if (data.length > 0) {
-        const efficiencies = data.map(e => e.efficiency).filter(e => e > 0);
+      if (entries.length > 0) {
+        const efficiencies = entries.map(e => e.efficiency).filter(e => e > 0);
         const bestEff = Math.max(...efficiencies);
         const worstEff = Math.min(...efficiencies);
         
         // Calculate average cost per km correctly: total cost / total distance
-        const totalCost = data.reduce((sum, e) => sum + e.amount, 0);
-        const totalDistance = data.reduce((sum, e) => sum + e.distance, 0);
+        const totalCost = entries.reduce((sum, e) => sum + e.amount, 0);
+        const totalDistance = entries.reduce((sum, e) => sum + e.distance, 0);
         const avgCostKm = totalDistance > 0 ? totalCost / totalDistance : 0;
         
         // Recent trend analysis
-        const recentEntries = data.slice(0, 10);
-        const olderEntries = data.slice(10, 20);
+        const recentEntries = entries.slice(0, 10);
+        const olderEntries = entries.slice(10, 20);
         const recentAvgEff = recentEntries.reduce((sum, e) => sum + e.efficiency, 0) / recentEntries.length;
         const olderAvgEff = olderEntries.length > 0 
           ? olderEntries.reduce((sum, e) => sum + e.efficiency, 0) / olderEntries.length 
@@ -198,12 +198,12 @@ function Analytics({ vehicleId }: AnalyticsProps) {
         // Projection based on last 30 days
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        const last30Days = data.filter(e => new Date(e.created_at) > thirtyDaysAgo);
+        const last30Days = entries.filter(e => new Date(e.created_at) > thirtyDaysAgo);
         const projMonthlyCost = last30Days.reduce((sum, e) => sum + e.amount, 0);
         const projMonthlyDistance = last30Days.reduce((sum, e) => sum + e.distance, 0);
 
         // Fuel savings opportunity (if you reach best efficiency)
-        const currentAvgEff = data.reduce((sum, e) => sum + e.efficiency, 0) / data.length;
+        const currentAvgEff = entries.reduce((sum, e) => sum + e.efficiency, 0) / entries.length;
         const savingsPercent = bestEff > 0 ? ((bestEff - currentAvgEff) / bestEff) * 100 : 0;
 
         setInsights({
@@ -218,8 +218,8 @@ function Analytics({ vehicleId }: AnalyticsProps) {
         });
 
         // Predictive Analytics - Estimate next refuel
-        if (data.length >= 3) {
-          const sortedEntries = [...data].sort((a, b) => 
+        if (entries.length >= 3) {
+          const sortedEntries = [...entries].sort((a, b) => 
             new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
           );
           

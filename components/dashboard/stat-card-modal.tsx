@@ -45,8 +45,8 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
   const loadData = async () => {
     try {
       setLoading(true);
-      const data = await getFuelEntries(vehicleId, 50);
-      setEntries(data);
+      const { entries } = await getFuelEntries(vehicleId, 50);
+      setEntries(entries);
       
       // Process data based on type
       let processedData: TrendData[] = [];
@@ -54,39 +54,39 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
 
       switch (type) {
         case 'cost':
-          processedData = data.map(entry => ({
+          processedData = entries.map(entry => ({
             date: new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             value: entry.amount
           })).reverse();
-          values = data.map(e => e.amount);
+          values = entries.map(e => e.amount);
           break;
         case 'distance':
-          processedData = data.map(entry => ({
+          processedData = entries.map(entry => ({
             date: new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             value: entry.distance
           })).reverse();
-          values = data.map(e => e.distance);
+          values = entries.map(e => e.distance);
           break;
         case 'efficiency':
-          processedData = data.map(entry => ({
+          processedData = entries.map(entry => ({
             date: new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             value: entry.efficiency
           })).reverse();
-          values = data.map(e => e.efficiency);
+          values = entries.map(e => e.efficiency);
           break;
         case 'fuel':
-          processedData = data.map(entry => ({
+          processedData = entries.map(entry => ({
             date: new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             value: entry.fuel_used
           })).reverse();
-          values = data.map(e => e.fuel_used);
+          values = entries.map(e => e.fuel_used);
           break;
         case 'costPerKm':
-          processedData = data.map(entry => ({
+          processedData = entries.map(entry => ({
             date: new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             value: entry.distance > 0 ? entry.amount / entry.distance : 0
           })).reverse();
-          values = data.map(e => e.distance > 0 ? e.amount / e.distance : 0);
+          values = entries.map(e => e.distance > 0 ? e.amount / e.distance : 0);
           break;
       }
 
@@ -107,11 +107,11 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
 
         // Calculate this month vs last month
         const now = new Date();
-        const thisMonthData = data.filter(e => {
+        const thisMonthData = entries.filter(e => {
           const entryDate = new Date(e.created_at);
           return entryDate.getMonth() === now.getMonth() && entryDate.getFullYear() === now.getFullYear();
         });
-        const lastMonthData = data.filter(e => {
+        const lastMonthData = entries.filter(e => {
           const entryDate = new Date(e.created_at);
           const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
           return entryDate.getMonth() === lastMonth.getMonth() && entryDate.getFullYear() === lastMonth.getFullYear();

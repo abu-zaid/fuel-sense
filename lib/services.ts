@@ -60,22 +60,22 @@ export async function deleteVehicle(id: string) {
 // FUEL ENTRIES
 // ============================================================================
 
-export async function getFuelEntries(vehicleId?: string, limit = 100) {
+export async function getFuelEntries(vehicleId?: string, limit = 100, offset = 0) {
   let query = supabase
     .from('fuel_entries')
-    .select('*')
+    .select('*', { count: 'exact' })
     .order('created_at', { ascending: false });
 
   if (vehicleId) {
     query = query.eq('vehicle_id', vehicleId);
   }
 
-  query = query.limit(limit);
+  query = query.range(offset, offset + limit - 1);
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
 
   if (error) throw error;
-  return data as FuelEntry[];
+  return { entries: data as FuelEntry[], total: count || 0 };
 }
 
 export async function addFuelEntry(
@@ -414,19 +414,21 @@ export async function getVehicleExpiryAlerts(vehicleId?: string) {
 // SERVICE HISTORY
 // ============================================================================
 
-export async function getServiceHistory(vehicleId?: string) {
+export async function getServiceHistory(vehicleId?: string, limit = 20, offset = 0) {
   let query = supabase
     .from('service_history')
-    .select('*')
+    .select('*', { count: 'exact' })
     .order('service_date', { ascending: false });
 
   if (vehicleId) {
     query = query.eq('vehicle_id', vehicleId);
   }
 
-  const { data, error } = await query;
+  query = query.range(offset, offset + limit - 1);
+
+  const { data, error, count } = await query;
   if (error) throw error;
-  return data as ServiceHistory[];
+  return { services: data as ServiceHistory[], total: count || 0 };
 }
 
 export async function addServiceHistory(entry: {

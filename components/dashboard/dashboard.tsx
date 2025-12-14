@@ -14,8 +14,19 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Onboarding, useOnboarding } from '@/components/ui/onboarding';
 import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { Car, Bike } from 'lucide-react';
-import DashboardUI from './dashboard-ui';
 import FuelEntryModal from '@/components/entries/fuel-entry-modal';
+import dynamic from 'next/dynamic';
+import { getDefaultVehicle } from '@/lib/profile';
+import { hapticNavigate } from '@/lib/haptic';
+import { BarChart3, Zap, History, UserCircle } from 'lucide-react';
+
+// Aggressive code splitting - lazy load all heavy components
+const DashboardUI = dynamic(() => import('./dashboard-ui'), {
+  loading: () => (
+    <LoadingSpinner message="Loading dashboard..." className="py-12" />
+  ),
+  ssr: false,
+});
 
 const FuelHistory = dynamic(() => import('@/components/entries/fuel-history'), {
   loading: () => (
@@ -23,8 +34,13 @@ const FuelHistory = dynamic(() => import('@/components/entries/fuel-history'), {
   ),
   ssr: false,
 });
-import ProfileContent from '@/components/profile/profile-content';
-import dynamic from 'next/dynamic';
+
+const ProfileContent = dynamic(() => import('@/components/profile/profile-content'), {
+  loading: () => (
+    <LoadingSpinner message="Loading profile..." className="py-12" />
+  ),
+  ssr: false,
+});
 
 // Lazy load chart components for better performance
 const EfficiencyChart = dynamic(() => import('@/components/charts/efficiency-chart'), {
@@ -44,7 +60,6 @@ const CostChart = dynamic(() => import('@/components/charts/cost-chart'), {
   ),
   ssr: false,
 });
-import { getDefaultVehicle } from '@/lib/profile';
 
 // Lazy load heavy components
 const Analytics = dynamic(() => import('@/components/analytics/analytics'), {
@@ -53,8 +68,6 @@ const Analytics = dynamic(() => import('@/components/analytics/analytics'), {
   ),
   ssr: false,
 });
-import { hapticNavigate } from '@/lib/haptic';
-import { BarChart3, Zap, History, UserCircle } from 'lucide-react';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -116,8 +129,8 @@ export default function Dashboard() {
   const loadEntries = async () => {
     if (!selectedVehicle) return;
     try {
-      const data = await getFuelEntries(selectedVehicle.id);
-      setEntries(data);
+      const { entries } = await getFuelEntries(selectedVehicle.id);
+      setEntries(entries);
     } catch (error) {
       console.error('Failed to load entries:', error);
     }

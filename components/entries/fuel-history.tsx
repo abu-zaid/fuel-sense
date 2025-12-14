@@ -131,8 +131,8 @@ export default function FuelHistory({
   const loadEntries = async () => {
     if (!vehicleId) return;
     try {
-      const data = await getFuelEntries(vehicleId);
-      setEntries(data);
+      const { entries } = await getFuelEntries(vehicleId);
+      setEntries(entries);
     } catch (error) {
       console.error('Failed to load entries:', error);
     } finally {

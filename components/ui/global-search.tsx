@@ -44,7 +44,7 @@ export function GlobalSearch({ open, onOpenChange, userId }: GlobalSearchProps) 
       const allEntriesArrays = await Promise.all(
         vehicles.map((v) => getFuelEntries(v.id))
       );
-      const allEntries = allEntriesArrays.flat();
+      const allEntries = allEntriesArrays.flatMap(result => result.entries);
 
       const searchLower = searchQuery.toLowerCase();
       const searchResults: SearchResult[] = [];

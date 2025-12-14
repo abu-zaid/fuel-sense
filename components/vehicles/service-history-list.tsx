@@ -50,8 +50,8 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
 
   const loadServices = async () => {
     try {
-      const data = await getServiceHistory(vehicleId);
-      setServices(data);
+      const { services } = await getServiceHistory(vehicleId);
+      setServices(services);
     } catch (error) {
       console.error('Failed to load service history:', error);
     } finally {
