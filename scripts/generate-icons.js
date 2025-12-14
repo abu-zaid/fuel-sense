@@ -59,27 +59,36 @@ async function generateIcons() {
       const outputPath = path.join(publicDir, `icon-maskable-${size}.png`);
       
       // Create a new SVG with padding
+      const scale = innerSize / 512;
+      const translateX = padding + (innerSize * 0.273); // Center the icon
+      const translateY = padding + (innerSize * 0.176);
+      
       const paddedSvg = `
         <svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="fsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#60a5fa;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
             </linearGradient>
           </defs>
-          <rect width="${size}" height="${size}" fill="white" rx="${size * 0.22}"/>
-          <g transform="translate(${padding}, ${padding})">
-            <rect width="${innerSize}" height="${innerSize}" fill="white" rx="${innerSize * 0.22}"/>
-            <text 
-              x="${innerSize / 2}" 
-              y="${innerSize * 0.664}" 
-              font-family="system-ui, -apple-system, sans-serif" 
-              font-size="${innerSize * 0.547}" 
-              font-weight="900" 
-              text-anchor="middle" 
-              fill="url(#fsGradient)"
-              letter-spacing="${-innerSize * 0.0156}"
-            >FS</text>
+          <rect width="${size}" height="${size}" fill="url(#bgGradient)" rx="${size * 0.22}"/>
+          <g transform="translate(${translateX}, ${translateY}) scale(${scale})">
+            <!-- Main body -->
+            <rect x="20" y="60" width="160" height="240" rx="12" fill="white"/>
+            <!-- Display screen -->
+            <rect x="40" y="80" width="120" height="80" rx="8" fill="#3b82f6" opacity="0.3"/>
+            <!-- Pump nozzle holder -->
+            <rect x="200" y="140" width="40" height="100" rx="8" fill="white"/>
+            <!-- Hose -->
+            <path d="M 200 190 Q 220 170 240 160 L 260 140" stroke="white" stroke-width="16" fill="none" stroke-linecap="round"/>
+            <!-- Nozzle -->
+            <path d="M 250 125 L 270 145 L 260 155 L 240 135 Z" fill="white"/>
+            <!-- Base -->
+            <rect x="0" y="300" width="200" height="32" rx="8" fill="white"/>
+            <!-- Pump buttons -->
+            <circle cx="60" cy="200" r="12" fill="#3b82f6" opacity="0.4"/>
+            <circle cx="100" cy="200" r="12" fill="#3b82f6" opacity="0.4"/>
+            <circle cx="140" cy="200" r="12" fill="#3b82f6" opacity="0.4"/>
           </g>
         </svg>
       `;
