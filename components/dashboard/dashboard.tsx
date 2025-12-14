@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/ui/animations';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Onboarding, useOnboarding } from '@/components/ui/onboarding';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { Car, Bike } from 'lucide-react';
 import DashboardUI from './dashboard-ui';
 import FuelEntryModal from '@/components/entries/fuel-entry-modal';
@@ -122,6 +123,10 @@ export default function Dashboard() {
     }
   };
 
+  const handleRefresh = async () => {
+    await Promise.all([loadVehicles(), loadEntries()]);
+  };
+
   if (loading) {
     return (
       <LoadingSpinner message="Loading dashboard..." className="min-h-screen" />
@@ -131,8 +136,9 @@ export default function Dashboard() {
   return (
     <>
       <Onboarding open={showOnboarding} onComplete={completeOnboarding} />
-      <div className="min-h-screen bg-gradient-to-br from-stone-50 via-stone-100 to-stone-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 pb-24 md:pb-32">
-        <Header onLogout={signOut} vehicles={vehicles} onImportSuccess={loadVehicles} />
+      <PullToRefresh onRefresh={handleRefresh}>
+        <div className="min-h-screen bg-gradient-to-br from-stone-50 via-stone-100 to-stone-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 pb-24 md:pb-32">
+          <Header onLogout={signOut} vehicles={vehicles} onImportSuccess={loadVehicles} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 md:py-8 pb-safe">
         {selectedVehicle && (
@@ -417,7 +423,8 @@ export default function Dashboard() {
           onEditClose={() => setShowAddModal(false)}
         />
       )}
-      </div>
+        </div>
+      </PullToRefresh>
     </>
   );
 }

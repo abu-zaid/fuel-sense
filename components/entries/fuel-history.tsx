@@ -19,6 +19,8 @@ import { exportToCSV } from '@/lib/csv';
 import { hapticDelete, hapticButton, hapticToggle, hapticSuccess } from '@/lib/haptic';
 import { toast } from '@/components/ui/toast';
 import { EmptyState } from '@/components/ui/empty-state';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
+import { SwipeActions } from '@/components/ui/swipe-actions';
 import type { FuelEntry, Vehicle } from '@/lib/types';
 import { Download, Trash2, History, Edit, Search, Filter, TrendingUp, TrendingDown, Calendar, DollarSign, Fuel, ArrowUpDown } from 'lucide-react';
 import FuelEntryModal from './fuel-entry-modal';
@@ -138,6 +140,10 @@ export default function FuelHistory({
     }
   };
 
+  const handleRefresh = async () => {
+    await loadEntries();
+  };
+
   const handleDelete = useCallback(async () => {
     if (!deleteConfirm) return;
     
@@ -218,9 +224,10 @@ export default function FuelHistory({
   }
 
   return (
-    <div className="space-y-4">
-      {/* Statistics Cards */}
-      {entries.length > 0 && (
+    <PullToRefresh onRefresh={handleRefresh}>
+      <div className="space-y-4">
+        {/* Statistics Cards */}
+        {entries.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -504,42 +511,28 @@ export default function FuelHistory({
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
-                  <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100/50 dark:from-slate-800 dark:to-slate-900/50 backdrop-blur-sm">
-                    <div className="p-4">
-                      {/* Header with Date and Actions */}
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <p className="text-sm font-medium text-stone-600 dark:text-stone-400">
-                            {new Date(entry.created_at).toLocaleDateString('en-US', { 
-                              weekday: 'short',
-                              month: 'short', 
-                              day: 'numeric', 
-                              year: 'numeric' 
-                            })}
-                          </p>
+                  <SwipeActions
+                    onEdit={() => setEditingEntry(entry)}
+                    onDelete={() => {
+                      hapticButton();
+                      setDeleteConfirm(entry.id);
+                    }}
+                  >
+                    <Card className="border-0 shadow-lg rounded-2xl overflow-hidden bg-gradient-to-br from-stone-50 to-stone-100/50 dark:from-slate-800 dark:to-slate-900/50 backdrop-blur-sm">
+                      <div className="p-4">
+                        {/* Header with Date */}
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <p className="text-sm font-medium text-stone-600 dark:text-stone-400">
+                              {new Date(entry.created_at).toLocaleDateString('en-US', { 
+                                weekday: 'short',
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric' 
+                              })}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditingEntry(entry)}
-                            className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              hapticButton();
-                              setDeleteConfirm(entry.id);
-                            }}
-                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
 
                       {/* Main Stats Grid */}
                       <div className="grid grid-cols-2 gap-3 mb-3">
@@ -569,8 +562,9 @@ export default function FuelHistory({
                           <p className="text-[10px] text-blue-600 dark:text-blue-400">km/l</p>
                         </div>
                       </div>
-                    </div>
-                  </Card>
+                      </div>
+                    </Card>
+                  </SwipeActions>
                 </motion.div>
                 ))}
               </AnimatePresence>
@@ -662,6 +656,7 @@ export default function FuelHistory({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </PullToRefresh>
   );
 }
