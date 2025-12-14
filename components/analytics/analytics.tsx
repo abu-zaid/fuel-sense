@@ -32,7 +32,13 @@ import {
   BarChart3,
   AlertTriangle,
   CheckCircle2,
-  Target
+  Target,
+  Clock,
+  Bell,
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus
 } from 'lucide-react';
 import { getFuelEntries } from '@/lib/services';
 import type { FuelEntry } from '@/lib/types';
@@ -64,6 +70,20 @@ interface EfficiencyInsight {
   color: string;
 }
 
+interface PredictiveAnalytics {
+  estimatedDaysToRefuel: number;
+  estimatedDate: Date | null;
+  confidence: 'high' | 'medium' | 'low';
+  avgDaysBetweenRefuels: number;
+  avgDistancePerDay: number;
+}
+
+interface SpendingAlert {
+  type: 'warning' | 'danger' | 'info';
+  message: string;
+  percentage: number;
+}
+
 export default function Analytics({ vehicleId }: AnalyticsProps) {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState<FuelEntry[]>([]);
@@ -79,6 +99,8 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
     costTrend: 0,
     fuelSavingsOpportunity: 0,
   });
+  const [predictive, setPredictive] = useState<PredictiveAnalytics | null>(null);
+  const [spendingAlerts, setSpendingAlerts] = useState<SpendingAlert[]>([]);
 
   useEffect(() => {
     if (vehicleId) {
@@ -194,6 +216,99 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
           costTrend: costTrend,
           fuelSavingsOpportunity: savingsPercent,
         });
+
+        // Predictive Analytics - Estimate next refuel
+        if (data.length >= 3) {
+          const sortedEntries = [...data].sort((a, b) => 
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          );
+          
+          // Calculate average days between refuels
+          const daysBetween: number[] = [];
+          for (let i = 1; i < sortedEntries.length; i++) {
+            const days = (new Date(sortedEntries[i].created_at).getTime() - 
+                         new Date(sortedEntries[i - 1].created_at).getTime()) / (1000 * 60 * 60 * 24);
+            daysBetween.push(days);
+          }
+          
+          const avgDays = daysBetween.reduce((a, b) => a + b, 0) / daysBetween.length;
+          const lastRefuelDate = new Date(sortedEntries[sortedEntries.length - 1].created_at);
+          const daysSinceLastRefuel = (Date.now() - lastRefuelDate.getTime()) / (1000 * 60 * 60 * 24);
+          const estimatedDays = Math.max(0, avgDays - daysSinceLastRefuel);
+          
+          // Calculate average distance per day
+          const totalDays = (new Date(sortedEntries[sortedEntries.length - 1].created_at).getTime() - 
+                            new Date(sortedEntries[0].created_at).getTime()) / (1000 * 60 * 60 * 24);
+          const avgDistancePerDay = totalDistance / totalDays;
+          
+          // Determine confidence based on consistency of refuel intervals
+          const variance = daysBetween.reduce((sum, days) => sum + Math.pow(days - avgDays, 2), 0) / daysBetween.length;
+          const stdDev = Math.sqrt(variance);
+          const coefficientOfVariation = stdDev / avgDays;
+          
+          let confidence: 'high' | 'medium' | 'low';
+          if (coefficientOfVariation < 0.3 && daysBetween.length >= 5) confidence = 'high';
+          else if (coefficientOfVariation < 0.5 && daysBetween.length >= 3) confidence = 'medium';
+          else confidence = 'low';
+          
+          const estimatedDate = new Date();
+          estimatedDate.setDate(estimatedDate.getDate() + Math.round(estimatedDays));
+          
+          setPredictive({
+            estimatedDaysToRefuel: Math.round(estimatedDays),
+            estimatedDate,
+            confidence,
+            avgDaysBetweenRefuels: avgDays,
+            avgDistancePerDay,
+          });
+        }
+
+        // Spending Alerts - Compare current month with average
+        const alerts: SpendingAlert[] = [];
+        
+        if (monthly.length >= 2) {
+          const currentMonth = monthly[monthly.length - 1];
+          const previousMonths = monthly.slice(0, -1);
+          const avgMonthlyCost = previousMonths.reduce((sum, m) => sum + m.totalCost, 0) / previousMonths.length;
+          
+          if (currentMonth.totalCost > avgMonthlyCost) {
+            const percentAbove = ((currentMonth.totalCost - avgMonthlyCost) / avgMonthlyCost) * 100;
+            
+            if (percentAbove > 50) {
+              alerts.push({
+                type: 'danger',
+                message: 'Current month spending is significantly higher than average',
+                percentage: percentAbove,
+              });
+            } else if (percentAbove > 20) {
+              alerts.push({
+                type: 'warning',
+                message: 'Current month spending exceeds monthly average',
+                percentage: percentAbove,
+              });
+            }
+          } else if (currentMonth.totalCost < avgMonthlyCost * 0.7) {
+            const percentBelow = ((avgMonthlyCost - currentMonth.totalCost) / avgMonthlyCost) * 100;
+            alerts.push({
+              type: 'info',
+              message: 'Great! Spending is below average this month',
+              percentage: percentBelow,
+            });
+          }
+          
+          // Check efficiency trend
+          const avgMonthlyEfficiency = previousMonths.reduce((sum, m) => sum + m.avgEfficiency, 0) / previousMonths.length;
+          if (currentMonth.avgEfficiency < avgMonthlyEfficiency * 0.9) {
+            const percentBelow = ((avgMonthlyEfficiency - currentMonth.avgEfficiency) / avgMonthlyEfficiency) * 100;
+            alerts.push({
+              type: 'warning',
+              message: 'Fuel efficiency has decreased this month',
+              percentage: percentBelow,
+            });
+          }
+        }
+        
+        setSpendingAlerts(alerts);
       }
     } catch (error) {
       console.error('Failed to load analytics:', error);
@@ -245,6 +360,104 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
       animate={{ opacity: 1 }}
       className="space-y-6"
     >
+      {/* Spending Alerts */}
+      {spendingAlerts.length > 0 && (
+        <div className="space-y-3">
+          {spendingAlerts.map((alert, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <Card className={`p-4 border-0 ${
+                alert.type === 'danger' 
+                  ? 'bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950 dark:to-red-900'
+                  : alert.type === 'warning'
+                  ? 'bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900'
+                  : 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900'
+              }`}>
+                <div className="flex items-center gap-3">
+                  <Bell className={`w-5 h-5 ${
+                    alert.type === 'danger' 
+                      ? 'text-red-600' 
+                      : alert.type === 'warning' 
+                      ? 'text-amber-600' 
+                      : 'text-green-600'
+                  }`} />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-stone-900 dark:text-white">
+                      {alert.message}
+                    </p>
+                    <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
+                      {alert.type === 'info' ? 'Saving' : 'Exceeding by'} {alert.percentage.toFixed(1)}%
+                    </p>
+                  </div>
+                  <div className={`text-2xl font-bold ${
+                    alert.type === 'danger' 
+                      ? 'text-red-600' 
+                      : alert.type === 'warning' 
+                      ? 'text-amber-600' 
+                      : 'text-green-600'
+                  }`}>
+                    {alert.type === 'info' ? '↓' : '↑'}{alert.percentage.toFixed(0)}%
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {/* Predictive Analytics */}
+      {predictive && (
+        <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900 rounded-3xl">
+          <div className="flex items-center gap-3 mb-4">
+            <Clock className="w-6 h-6 text-indigo-600" />
+            <h3 className="text-xl font-bold text-stone-900 dark:text-white">Predictive Analytics</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-stone-50 dark:bg-indigo-900/50 rounded-xl p-4">
+              <p className="text-sm text-stone-600 dark:text-stone-300 mb-2">Next Refuel Estimate</p>
+              <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+                {predictive.estimatedDaysToRefuel === 0 ? 'Soon' : `${predictive.estimatedDaysToRefuel}d`}
+              </p>
+              {predictive.estimatedDate && (
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+                  {predictive.estimatedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              )}
+              <div className="flex items-center gap-2 mt-2">
+                <div className={`w-2 h-2 rounded-full ${
+                  predictive.confidence === 'high' 
+                    ? 'bg-green-500' 
+                    : predictive.confidence === 'medium' 
+                    ? 'bg-amber-500' 
+                    : 'bg-red-500'
+                }`} />
+                <span className="text-xs text-stone-600 dark:text-stone-400 capitalize">
+                  {predictive.confidence} confidence
+                </span>
+              </div>
+            </div>
+            <div className="bg-stone-50 dark:bg-indigo-900/50 rounded-xl p-4">
+              <p className="text-sm text-stone-600 dark:text-stone-300 mb-2">Avg Days Between Refuels</p>
+              <p className="text-3xl font-bold text-stone-900 dark:text-white">
+                {predictive.avgDaysBetweenRefuels.toFixed(1)}
+              </p>
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-2">days</p>
+            </div>
+            <div className="bg-stone-50 dark:bg-indigo-900/50 rounded-xl p-4">
+              <p className="text-sm text-stone-600 dark:text-stone-300 mb-2">Avg Distance Per Day</p>
+              <p className="text-3xl font-bold text-stone-900 dark:text-white">
+                {predictive.avgDistancePerDay.toFixed(1)}
+              </p>
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-2">km/day</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Key Insights */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-0">
@@ -269,19 +482,33 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
 
         <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-0">
           <div className="flex items-center gap-3 mb-2">
-            <Target className="w-6 h-6 text-purple-600" />
+            <Activity className="w-6 h-6 text-purple-600" />
             <h4 className="font-semibold text-stone-900 dark:text-white">Efficiency Trend</h4>
           </div>
           <div className="flex items-center gap-2">
             <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-              {Math.abs(insights.efficiencyTrend).toFixed(2)}%
+              {Math.abs(insights.efficiencyTrend).toFixed(1)}%
             </p>
-            {insights.efficiencyTrend > 0 ? (
-              <TrendingUp className="w-6 h-6 text-green-500" />
-            ) : insights.efficiencyTrend < 0 ? (
-              <TrendingDown className="w-6 h-6 text-red-500" />
-            ) : null}
+            {insights.efficiencyTrend > 2 ? (
+              <div className="flex items-center gap-1">
+                <ArrowUpRight className="w-6 h-6 text-green-500" />
+                <span className="text-xs font-semibold text-green-600 dark:text-green-400">Improving</span>
+              </div>
+            ) : insights.efficiencyTrend < -2 ? (
+              <div className="flex items-center gap-1">
+                <ArrowDownRight className="w-6 h-6 text-red-500" />
+                <span className="text-xs font-semibold text-red-600 dark:text-red-400">Declining</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                <Minus className="w-6 h-6 text-stone-400" />
+                <span className="text-xs font-semibold text-stone-600 dark:text-stone-400">Stable</span>
+              </div>
+            )}
           </div>
+          <p className="text-xs text-stone-600 dark:text-stone-400 mt-2">
+            vs previous 10 entries
+          </p>
         </Card>
 
         <Card className="p-6 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900 border-0">
@@ -333,11 +560,48 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
         </div>
       </Card>
 
-      {/* Monthly Cost vs Distance */}
+      {/* Cost Comparison Month-over-Month */}
       <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-blue-50/30 to-stone-50 dark:from-blue-950/30 dark:to-slate-900 rounded-3xl">
-        <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4">
-          Monthly Cost & Distance Analysis
+        <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4 flex items-center gap-2">
+          <IndianRupee className="w-6 h-6 text-blue-600" />
+          Cost Comparison - Month over Month
         </h3>
+        <div className="mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+          {monthlyData.slice(-4).map((month, idx) => {
+            const prevMonth = monthlyData[monthlyData.length - 5 + idx];
+            const change = prevMonth 
+              ? ((month.totalCost - prevMonth.totalCost) / prevMonth.totalCost) * 100 
+              : 0;
+            return (
+              <div key={month.month} className="bg-stone-50 dark:bg-slate-800 rounded-lg p-3">
+                <p className="text-xs text-stone-500 dark:text-stone-400">{month.month}</p>
+                <p className="text-lg font-bold text-stone-900 dark:text-white">
+                  ₹{month.totalCost.toFixed(0)}
+                </p>
+                {prevMonth && (
+                  <div className="flex items-center gap-1 mt-1">
+                    {change > 0 ? (
+                      <ArrowUpRight className="w-3 h-3 text-red-500" />
+                    ) : change < 0 ? (
+                      <ArrowDownRight className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <Minus className="w-3 h-3 text-stone-400" />
+                    )}
+                    <span className={`text-xs font-semibold ${
+                      change > 0 
+                        ? 'text-red-600 dark:text-red-400' 
+                        : change < 0 
+                        ? 'text-green-600 dark:text-green-400' 
+                        : 'text-stone-500'
+                    }`}>
+                      {Math.abs(change).toFixed(1)}%
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
         <ResponsiveContainer width="100%" height={300}>
           <ComposedChart data={monthlyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
