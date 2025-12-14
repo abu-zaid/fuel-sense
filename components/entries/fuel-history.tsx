@@ -17,6 +17,7 @@ import {
 import { getFuelEntries, deleteFuelEntry } from '@/lib/services';
 import { exportToCSV } from '@/lib/csv';
 import { hapticDelete, hapticButton, hapticToggle, hapticSuccess } from '@/lib/haptic';
+import { toast } from '@/components/ui/toast';
 import type { FuelEntry, Vehicle } from '@/lib/types';
 import { Download, Trash2, History, Edit, Search, Filter, TrendingUp, TrendingDown, Calendar, DollarSign, Fuel, ArrowUpDown } from 'lucide-react';
 import FuelEntryModal from './fuel-entry-modal';
@@ -41,6 +42,7 @@ export default function FuelHistory({
   const [filterPeriod, setFilterPeriod] = useState<'all' | '7days' | '30days' | '90days'>('all');
   const [displayCount, setDisplayCount] = useState(20);
   const [hasMore, setHasMore] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   
   const { ref: loadMoreRef, inView } = useInView({
     threshold: 0,
@@ -135,18 +137,23 @@ export default function FuelHistory({
     }
   };
 
-  const handleDelete = useCallback(async (id: string) => {
+  const handleDelete = useCallback(async () => {
+    if (!deleteConfirm) return;
+    
     hapticDelete();
-    if (!confirm('Delete this entry?')) return;
     try {
-      await deleteFuelEntry(id);
+      await deleteFuelEntry(deleteConfirm);
       hapticSuccess();
+      toast.success('Entry deleted successfully');
       loadEntries();
       onDataChange();
     } catch (error) {
       console.error('Failed to delete entry:', error);
+      toast.error('Failed to delete entry');
+    } finally {
+      setDeleteConfirm(null);
     }
-  }, [onDataChange]);
+  }, [deleteConfirm, onDataChange]);
 
   const handleExport = useCallback(() => {
     if (!vehicle) return;
@@ -432,7 +439,10 @@ export default function FuelHistory({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleDelete(entry.id)}
+                                  onClick={() => {
+                                    hapticButton();
+                                    setDeleteConfirm(entry.id);
+                                  }}
                                   className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -495,7 +505,10 @@ export default function FuelHistory({
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDelete(entry.id)}
+                            onClick={() => {
+                              hapticButton();
+                              setDeleteConfirm(entry.id);
+                            }}
                             className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -582,6 +595,48 @@ export default function FuelHistory({
           }}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AnimatePresence>
+        {deleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setDeleteConfirm(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 max-w-md w-full"
+            >
+              <h3 className="text-lg font-semibold mb-2 text-stone-900 dark:text-slate-100">
+                Delete Entry
+              </h3>
+              <p className="text-stone-600 dark:text-slate-400 mb-6">
+                Are you sure you want to delete this fuel entry? This action cannot be undone.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setDeleteConfirm(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

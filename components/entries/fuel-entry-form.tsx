@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { addFuelEntry, getFuelEntries, updateFuelEntry } from '@/lib/services';
 import { hapticSuccess, hapticError } from '@/lib/haptic';
+import { toast } from '@/components/ui/toast';
+import { SuccessAnimation } from '@/components/ui/animations';
 import type { FuelEntry } from '@/lib/types';
 
 interface FuelEntryFormProps {
@@ -90,6 +92,7 @@ export default function FuelEntryForm({ vehicleId, onSuccess, editEntry, standal
       setAmount('');
       setDistance('');
       hapticSuccess();
+      toast.success(editEntry ? 'Entry updated successfully!' : 'Entry added successfully!');
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save entry');

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { signUp, signIn, supabase } from '@/lib/supabase';
+import { toast } from '@/components/ui/toast';
 import { Mail } from 'lucide-react';
 
 export default function AuthPage() {
@@ -25,7 +26,7 @@ export default function AuthPage() {
         if (authError) throw new Error(authError.message);
         setEmail('');
         setPassword('');
-        alert('Check your email for confirmation!');
+        toast.success('Check your email for confirmation!');
       } else {
         const { error: authError } = await signIn(email, password);
         if (authError) throw new Error(authError.message);

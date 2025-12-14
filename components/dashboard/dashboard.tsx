@@ -9,17 +9,14 @@ import type { Vehicle, FuelEntry } from '@/lib/types';
 import Header from '@/components/layout/header';
 import StatCards from '@/components/dashboard/stat-cards';
 import { Card } from '@/components/ui/card';
+import { LoadingSpinner } from '@/components/ui/animations';
 import { Car, Bike } from 'lucide-react';
 import DashboardUI from './dashboard-ui';
 import FuelEntryModal from '@/components/entries/fuel-entry-modal';
 
 const FuelHistory = dynamic(() => import('@/components/entries/fuel-history'), {
   loading: () => (
-    <div className="flex items-center justify-center py-12">
-      <div className="animate-spin">
-        <div className="w-12 h-12 border-4 border-stone-300 dark:border-slate-600 border-t-blue-500 rounded-full" />
-      </div>
-    </div>
+    <LoadingSpinner message="Loading history..." className="py-12" />
   ),
   ssr: false,
 });
@@ -49,11 +46,7 @@ import { getDefaultVehicle } from '@/lib/profile';
 // Lazy load heavy components
 const Analytics = dynamic(() => import('@/components/analytics/analytics'), {
   loading: () => (
-    <div className="flex items-center justify-center py-12">
-      <div className="animate-spin">
-        <div className="w-12 h-12 border-4 border-stone-300 dark:border-slate-600 border-t-blue-500 rounded-full" />
-      </div>
-    </div>
+    <LoadingSpinner message="Loading analytics..." className="py-12" />
   ),
   ssr: false,
 });
@@ -128,11 +121,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin">
-          <div className="w-12 h-12 border-4 border-stone-300 border-t-blue-500 rounded-full" />
-        </div>
-      </div>
+      <LoadingSpinner message="Loading dashboard..." className="min-h-screen" />
     );
   }
 

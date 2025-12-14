@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { Car, Bike, Calendar, FileText, Shield, Pencil, Save, Trash2 } from 'lucide-react';
 import { hapticSuccess, hapticError, hapticButton } from '@/lib/haptic';
+import { toast } from '@/components/ui/toast';
 
 interface VehicleDetailsProps {
   vehicle: Vehicle;
@@ -70,7 +71,7 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
     } catch (error) {
       hapticError();
       console.error('Failed to delete vehicle:', error);
-      alert('Failed to delete vehicle. Please try again.');
+      toast.error('Failed to delete vehicle. Please try again.');
     } finally {
       setLoading(false);
       setShowDeleteConfirm(false);

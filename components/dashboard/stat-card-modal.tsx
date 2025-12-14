@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AreaChart, Area, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/animations';
 import { useEffect, useState } from 'react';
 import { getFuelEntries, getMonthlyCosts } from '@/lib/services';
 import type { FuelEntry, MonthlyCost } from '@/lib/types';
@@ -228,9 +229,7 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
         </DialogHeader>
 
         {loading ? (
-          <div className="h-96 flex items-center justify-center">
-            <div className="animate-spin w-8 h-8 border-4 border-stone-300 border-t-blue-500 rounded-full" />
-          </div>
+          <LoadingSpinner message="Loading statistics..." className="h-96" />
         ) : (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -245,28 +244,29 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 bg-stone-50 dark:bg-slate-800 rounded-xl">
-                <p className="text-xs text-stone-600 dark:text-stone-400 mb-1">Average</p>
-                <p className="text-lg font-bold text-stone-900 dark:text-white">
-                  {type === 'cost' ? getUnit() : ''}{stats.average.toFixed(2)}{type !== 'cost' ? ' ' + getUnit() : ''}
-                </p>
-              </div>
-              <div className="p-4 bg-stone-50 dark:bg-slate-800 rounded-xl">
-                <p className="text-xs text-stone-600 dark:text-stone-400 mb-1">Minimum</p>
-                <p className="text-lg font-bold text-stone-900 dark:text-white">
-                  {type === 'cost' ? getUnit() : ''}{stats.min.toFixed(2)}{type !== 'cost' ? ' ' + getUnit() : ''}
-                </p>
-              </div>
-              <div className="p-4 bg-stone-50 dark:bg-slate-800 rounded-xl">
-                <p className="text-xs text-stone-600 dark:text-stone-400 mb-1">Maximum</p>
-                <p className="text-lg font-bold text-stone-900 dark:text-white">
-                  {type === 'cost' ? getUnit() : ''}{stats.max.toFixed(2)}{type !== 'cost' ? ' ' + getUnit() : ''}
-                </p>
-              </div>
-              <div className="p-4 bg-stone-50 dark:bg-slate-800 rounded-xl">
-                <p className="text-xs text-stone-600 dark:text-stone-400 mb-1">Trend</p>
-                <TrendIndicator value={stats.trend} />
-              </div>
+              {[
+                { label: 'Average', value: stats.average },
+                { label: 'Minimum', value: stats.min },
+                { label: 'Maximum', value: stats.max },
+                { label: 'Trend', value: stats.trend, isTrend: true }
+              ].map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, type: 'spring', stiffness: 400, damping: 25 }}
+                  className="p-4 bg-stone-50 dark:bg-slate-800 rounded-xl"
+                >
+                  <p className="text-xs text-stone-600 dark:text-stone-400 mb-1">{stat.label}</p>
+                  {stat.isTrend ? (
+                    <TrendIndicator value={stat.value} />
+                  ) : (
+                    <p className="text-lg font-bold text-stone-900 dark:text-white">
+                      {type === 'cost' ? getUnit() : ''}{stat.value.toFixed(2)}{type !== 'cost' ? ' ' + getUnit() : ''}
+                    </p>
+                  )}
+                </motion.div>
+              ))}
             </div>
 
             {/* Comparison */}

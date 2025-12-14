@@ -18,6 +18,7 @@ import {
 import { Plus, Car, Bike } from 'lucide-react';
 import { addVehicle } from '@/lib/services';
 import { hapticSuccess, hapticError, hapticToggle } from '@/lib/haptic';
+import { toast } from '@/components/ui/toast';
 
 interface AddVehicleDialogProps {
   open: boolean;
@@ -53,6 +54,7 @@ export default function AddVehicleDialog({ open, onOpenChange, onSuccess }: AddV
       }
       
       hapticSuccess();
+      toast.success('Vehicle added successfully!');
       setName('');
       setType('car');
       setMake('');

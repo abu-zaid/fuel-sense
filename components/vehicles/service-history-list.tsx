@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { Wrench, Plus, Pencil, Trash2, Calendar, DollarSign, Gauge } from 'lucide-react';
 import { hapticSuccess, hapticError, hapticButton } from '@/lib/haptic';
+import { toast } from '@/components/ui/toast';
 
 interface ServiceHistoryListProps {
   vehicleId: string;
@@ -30,6 +31,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [editingService, setEditingService] = useState<ServiceHistory | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     service_date: '',
     service_type: '',
@@ -126,26 +128,28 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
     } catch (error) {
       hapticError();
       console.error('Failed to save service:', error);
-      alert('Failed to save service record');
+      toast.error('Failed to save service record');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this service record?')) return;
-
+  const handleDelete = async () => {
+    if (!deleteConfirm) return;
+    
     setLoading(true);
     try {
-      await deleteServiceHistory(id);
+      await deleteServiceHistory(deleteConfirm);
       hapticSuccess();
+      toast.success('Service record deleted successfully');
       loadServices();
     } catch (error) {
       hapticError();
       console.error('Failed to delete service:', error);
-      alert('Failed to delete service record');
+      toast.error('Failed to delete service record');
     } finally {
       setLoading(false);
+      setDeleteConfirm(null);
     }
   };
 
@@ -249,7 +253,10 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(service.id)}
+                    onClick={() => {
+                      hapticButton();
+                      setDeleteConfirm(service.id);
+                    }}
                     className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -410,6 +417,34 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Service Record</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this service record? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-3 justify-end mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirm(null)}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDelete}
+              disabled={loading}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {loading ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

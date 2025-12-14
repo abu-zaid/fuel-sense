@@ -147,7 +147,9 @@ export default function LandingPage() {
                     if ('serviceWorker' in navigator) {
                       window.location.href = '/signin';
                     } else {
-                      alert('PWA installation not supported on this browser');
+                      import('@/components/ui/toast').then(({ toast }) => {
+                        toast.error('PWA installation not supported on this browser');
+                      });
                     }
                   }}
                   className="gap-2 px-8"

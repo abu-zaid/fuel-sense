@@ -6,6 +6,7 @@ import { useAuth } from '@/app/providers';
 import { useTheme } from '@/app/theme-provider';
 import { getUserVehicles, getDefaultVehicle, setDefaultVehicle } from '@/lib/profile';
 import { hapticToggle, hapticButton, hapticSuccess } from '@/lib/haptic';
+import { LoadingSpinner } from '@/components/ui/animations';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AddVehicleDialog from '@/components/vehicles/add-vehicle-dialog';
@@ -68,11 +69,7 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="animate-spin">
-          <div className="w-12 h-12 border-4 border-stone-300 border-t-blue-500 rounded-full" />
-        </div>
-      </div>
+      <LoadingSpinner message="Loading profile..." className="py-12" />
     );
   }
 
