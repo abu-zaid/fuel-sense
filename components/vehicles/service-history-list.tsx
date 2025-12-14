@@ -165,8 +165,8 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-stone-800 flex items-center gap-2">
-          <Wrench className="w-5 h-5" />
+        <h3 className="text-lg font-semibold text-stone-800 dark:text-white flex items-center gap-2">
+          <Wrench className="w-5 h-5 text-stone-600 dark:text-stone-400" />
           Service History
         </h3>
         <Button onClick={handleAdd} size="sm" className="gap-2">
@@ -176,14 +176,14 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
       </div>
 
       {loading && services.length === 0 ? (
-        <Card className="p-8 text-center">
-          <p className="text-stone-500">Loading service history...</p>
+        <Card className="p-8 text-center bg-stone-50 dark:bg-slate-800/50 border-stone-200 dark:border-slate-700">
+          <p className="text-stone-500 dark:text-stone-400">Loading service history...</p>
         </Card>
       ) : services.length === 0 ? (
-        <Card className="p-8 text-center">
-          <Wrench className="w-12 h-12 mx-auto text-stone-400 mb-3" />
-          <p className="text-stone-600 mb-4">No service records yet</p>
-          <Button onClick={handleAdd} variant="outline" className="gap-2">
+        <Card className="p-8 text-center bg-stone-50 dark:bg-slate-800/50 border-stone-200 dark:border-slate-700">
+          <Wrench className="w-12 h-12 mx-auto text-stone-400 dark:text-stone-600 mb-3" />
+          <p className="text-stone-600 dark:text-stone-400 mb-4">No service records yet</p>
+          <Button onClick={handleAdd} variant="outline" className="gap-2 border-stone-300 dark:border-slate-600 hover:bg-stone-100 dark:hover:bg-slate-700">
             <Plus className="w-4 h-4" />
             Add First Service
           </Button>
@@ -191,23 +191,23 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
       ) : (
         <div className="space-y-3">
           {services.map((service) => (
-            <Card key={service.id} className="p-4 hover:shadow-md transition-shadow">
+            <Card key={service.id} className="p-4 hover:shadow-md transition-shadow bg-stone-50 dark:bg-slate-800/50 border-stone-200 dark:border-slate-700">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h4 className="font-semibold text-stone-800">{service.service_type}</h4>
+                    <h4 className="font-semibold text-stone-800 dark:text-white">{service.service_type}</h4>
                     {service.cost && (
-                      <span className="text-sm font-medium text-green-600">
+                      <span className="text-sm font-medium text-green-600 dark:text-green-400">
                         {formatCurrency(service.cost)}
                       </span>
                     )}
                   </div>
 
                   {service.description && (
-                    <p className="text-sm text-stone-600 mb-2">{service.description}</p>
+                    <p className="text-sm text-stone-600 dark:text-stone-400 mb-2">{service.description}</p>
                   )}
 
-                  <div className="flex flex-wrap gap-4 text-sm text-stone-500">
+                  <div className="flex flex-wrap gap-4 text-sm text-stone-500 dark:text-stone-400">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       {formatDate(service.service_date)}
@@ -219,15 +219,15 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
                       </div>
                     )}
                     {service.service_provider && (
-                      <div className="text-stone-600">
+                      <div className="text-stone-600 dark:text-stone-400">
                         @ {service.service_provider}
                       </div>
                     )}
                   </div>
 
                   {service.next_service_due && (
-                    <div className="mt-2 p-2 bg-blue-50 rounded text-sm">
-                      <p className="text-blue-700">
+                    <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-sm">
+                      <p className="text-blue-700 dark:text-blue-300">
                         <strong>Next Service:</strong> {formatDate(service.next_service_due)}
                         {service.next_service_mileage && ` at ${service.next_service_mileage.toLocaleString()} km`}
                       </p>
@@ -235,7 +235,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
                   )}
 
                   {service.notes && (
-                    <div className="mt-2 p-2 bg-stone-50 rounded text-sm text-stone-600">
+                    <div className="mt-2 p-2 bg-stone-100 dark:bg-slate-700/50 rounded text-sm text-stone-600 dark:text-stone-400">
                       {service.notes}
                     </div>
                   )}
@@ -244,13 +244,13 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
                 <div className="flex gap-2 ml-4">
                   <button
                     onClick={() => handleEdit(service)}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(service.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                    className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -277,7 +277,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
                   Service Date *
                 </label>
                 <Input
@@ -290,7 +290,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
                   Service Type *
                 </label>
                 <Input
@@ -303,7 +303,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
                   Description
                 </label>
                 <Input
@@ -315,7 +315,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
                   Cost (₹)
                 </label>
                 <Input
@@ -329,7 +329,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
                   Mileage (km)
                 </label>
                 <Input
@@ -342,7 +342,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
                   Service Provider
                 </label>
                 <Input
@@ -354,7 +354,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
                   Next Service Due
                 </label>
                 <Input
@@ -366,7 +366,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
                   Next Service Mileage (km)
                 </label>
                 <Input
@@ -379,7 +379,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
                   Notes
                 </label>
                 <textarea
@@ -388,7 +388,7 @@ export default function ServiceHistoryList({ vehicleId }: ServiceHistoryListProp
                   placeholder="Additional notes or observations"
                   disabled={loading}
                   rows={3}
-                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-stone-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-stone-900 dark:text-white"
                 />
               </div>
             </div>

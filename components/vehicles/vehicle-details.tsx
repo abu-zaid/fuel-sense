@@ -1,12 +1,21 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Vehicle } from '@/lib/types';
-import { updateVehicleDetails } from '@/lib/services';
+import { updateVehicleDetails, deleteVehicle } from '@/lib/services';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Car, Bike, Calendar, FileText, Shield, Pencil, Save } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Car, Bike, Calendar, FileText, Shield, Pencil, Save, Trash2 } from 'lucide-react';
 import { hapticSuccess, hapticError, hapticButton } from '@/lib/haptic';
 
 interface VehicleDetailsProps {
@@ -15,8 +24,10 @@ interface VehicleDetailsProps {
 }
 
 export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProps) {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [formData, setFormData] = useState({
     name: vehicle.name,
     make: vehicle.make || '',
@@ -47,6 +58,22 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
       console.error('Failed to update vehicle:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await deleteVehicle(vehicle.id);
+      hapticSuccess();
+      router.push('/');
+    } catch (error) {
+      hapticError();
+      console.error('Failed to delete vehicle:', error);
+      alert('Failed to delete vehicle. Please try again.');
+    } finally {
+      setLoading(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -102,18 +129,32 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
             </div>
           </div>
           {!isEditing && (
-            <Button
-              onClick={() => {
-                hapticButton();
-                setIsEditing(true);
-              }}
-              variant="outline"
-              size="sm"
-              className="gap-2 border-stone-300 dark:border-slate-600 hover:bg-stone-100 dark:hover:bg-slate-700"
-            >
-              <Pencil className="w-4 h-4" />
-              Edit
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => {
+                  hapticButton();
+                  setIsEditing(true);
+                }}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-stone-300 dark:border-slate-600 hover:bg-stone-100 dark:hover:bg-slate-700"
+              >
+                <Pencil className="w-4 h-4" />
+                Edit
+              </Button>
+              <Button
+                onClick={() => {
+                  hapticButton();
+                  setShowDeleteConfirm(true);
+                }}
+                variant="outline"
+                size="sm"
+                className="gap-2 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete
+              </Button>
+            </div>
           )}
         </div>
 
@@ -311,6 +352,37 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
           </div>
         </div>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Vehicle</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete <strong>{vehicle.name}</strong>? This action cannot be undone.
+              All fuel entries and service history associated with this vehicle will also be deleted.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={loading}
+              className="gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              {loading ? 'Deleting...' : 'Delete Vehicle'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
