@@ -163,6 +163,7 @@ export async function getDashboardStats(vehicleId?: string): Promise<DashboardSt
   const totalDistance = entries.reduce((sum, entry) => sum + entry.distance, 0);
   const totalFuelUsed = entries.reduce((sum, entry) => sum + entry.fuel_used, 0);
   const averageEfficiency = entries.length > 0 ? totalDistance / totalFuelUsed : 0;
+  const costPerKm = totalDistance > 0 ? totalFuelCost / totalDistance : 0;
 
   // Calculate last 30 days vs previous 30 days for comparison
   const now = new Date();
@@ -181,12 +182,14 @@ export async function getDashboardStats(vehicleId?: string): Promise<DashboardSt
   const recentDistance = last30DaysEntries.reduce((sum, e) => sum + e.distance, 0);
   const recentFuel = last30DaysEntries.reduce((sum, e) => sum + e.fuel_used, 0);
   const recentEfficiency = recentFuel > 0 ? recentDistance / recentFuel : 0;
+  const recentCostPerKm = recentDistance > 0 ? recentCost / recentDistance : 0;
 
   // Previous 30 days totals
   const prevCost = previous30DaysEntries.reduce((sum, e) => sum + e.amount, 0);
   const prevDistance = previous30DaysEntries.reduce((sum, e) => sum + e.distance, 0);
   const prevFuel = previous30DaysEntries.reduce((sum, e) => sum + e.fuel_used, 0);
   const prevEfficiency = prevFuel > 0 ? prevDistance / prevFuel : 0;
+  const prevCostPerKm = prevDistance > 0 ? prevCost / prevDistance : 0;
 
   // Calculate percentage changes (recent vs previous period)
   const calculateChange = (recent: number, previous: number) => {
@@ -199,11 +202,13 @@ export async function getDashboardStats(vehicleId?: string): Promise<DashboardSt
     totalDistance: Math.round(totalDistance * 100) / 100,
     averageEfficiency: Math.round(averageEfficiency * 100) / 100,
     totalFuelUsed: Math.round(totalFuelUsed * 100) / 100,
+    costPerKm: Math.round(costPerKm * 100) / 100,
     entriesCount: entries.length,
     costChange: Math.round(calculateChange(recentCost, prevCost) * 10) / 10,
     distanceChange: Math.round(calculateChange(recentDistance, prevDistance) * 10) / 10,
     efficiencyChange: Math.round(calculateChange(recentEfficiency, prevEfficiency) * 10) / 10,
     fuelChange: Math.round(calculateChange(recentFuel, prevFuel) * 10) / 10,
+    costPerKmChange: Math.round(calculateChange(recentCostPerKm, prevCostPerKm) * 10) / 10,
   };
 }
 

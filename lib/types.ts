@@ -45,9 +45,11 @@ export interface DashboardStats {
   totalDistance: number;
   averageEfficiency: number;
   totalFuelUsed: number;
+  costPerKm: number;
   entriesCount: number;
   costChange?: number; // percentage change vs last month
   distanceChange?: number;
+  costPerKmChange?: number;
   efficiencyChange?: number;
   fuelChange?: number;
 }

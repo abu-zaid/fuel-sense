@@ -11,7 +11,7 @@ import type { FuelEntry, MonthlyCost } from '@/lib/types';
 interface StatCardModalProps {
   isOpen: boolean;
   onClose: () => void;
-  type: 'cost' | 'distance' | 'efficiency' | 'fuel';
+  type: 'cost' | 'distance' | 'efficiency' | 'fuel' | 'costPerKm';
   value: string;
   vehicleId?: string;
 }
@@ -79,6 +79,13 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
           })).reverse();
           values = data.map(e => e.fuel_used);
           break;
+        case 'costPerKm':
+          processedData = data.map(entry => ({
+            date: new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            value: entry.distance > 0 ? entry.amount / entry.distance : 0
+          })).reverse();
+          values = data.map(e => e.distance > 0 ? e.amount / e.distance : 0);
+          break;
       }
 
       setTrendData(processedData);
@@ -114,6 +121,7 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
             case 'distance': return sum + e.distance;
             case 'efficiency': return sum + e.efficiency;
             case 'fuel': return sum + e.fuel_used;
+            case 'costPerKm': return sum + (e.distance > 0 ? e.amount / e.distance : 0);
             default: return sum;
           }
         }, 0) / (thisMonthData.length || 1);
@@ -124,6 +132,7 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
             case 'distance': return sum + e.distance;
             case 'efficiency': return sum + e.efficiency;
             case 'fuel': return sum + e.fuel_used;
+            case 'costPerKm': return sum + (e.distance > 0 ? e.amount / e.distance : 0);
             default: return sum;
           }
         }, 0) / (lastMonthData.length || 1);
@@ -150,6 +159,7 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
       case 'distance': return 'Distance Traveled';
       case 'efficiency': return 'Fuel Efficiency';
       case 'fuel': return 'Fuel Consumption';
+      case 'costPerKm': return 'Cost per Kilometer';
     }
   };
 
@@ -159,6 +169,7 @@ export default function StatCardModal({ isOpen, onClose, type, value, vehicleId 
       case 'distance': return 'km';
       case 'efficiency': return 'km/l';
       case 'fuel': return 'L';
+      case 'costPerKm': return '₹/km';
     }
   };
 

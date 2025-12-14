@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { getDashboardStats } from '@/lib/services';
 import type { DashboardStats } from '@/lib/types';
-import { IndianRupee, Navigation, Gauge, Droplet } from 'lucide-react';
+import { IndianRupee, Navigation, Gauge, Droplet, TrendingUp } from 'lucide-react';
 import StatCardModal from './stat-card-modal';
 
 interface StatCardsProps {
@@ -13,7 +13,7 @@ interface StatCardsProps {
 export default function StatCards({ vehicleId }: StatCardsProps) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedCard, setSelectedCard] = useState<'cost' | 'distance' | 'efficiency' | 'fuel' | null>(null);
+  const [selectedCard, setSelectedCard] = useState<'cost' | 'distance' | 'efficiency' | 'fuel' | 'costPerKm' | null>(null);
 
   useEffect(() => {
     loadStats();
@@ -32,8 +32,8 @@ export default function StatCards({ vehicleId }: StatCardsProps) {
 
   if (loading || !stats) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map((i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {[1, 2, 3, 4, 5].map((i) => (
           <div key={i} className="h-28 bg-slate-200 dark:bg-slate-700 rounded-2xl" />
         ))}
       </div>
@@ -77,12 +77,21 @@ export default function StatCards({ vehicleId }: StatCardsProps) {
       type: 'fuel' as const,
       change: stats.fuelChange,
     },
+    {
+      label: 'Cost per km',
+      value: `₹${stats.costPerKm.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      icon: TrendingUp,
+      color: 'from-rose-50 to-rose-100 dark:from-rose-950 dark:to-rose-900',
+      iconColor: 'text-rose-600',
+      type: 'costPerKm' as const,
+      change: stats.costPerKmChange,
+    },
   ];
 
   return (
     <>
       <motion.div 
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
         initial="initial"
         animate="animate"
         variants={{
