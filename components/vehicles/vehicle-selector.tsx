@@ -1,16 +1,18 @@
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import AddVehicleDialog from '@/components/vehicles/add-vehicle-dialog';
 import { hapticToggle, hapticButton } from '@/lib/haptic';
 import type { Vehicle } from '@/lib/types';
-import { ChevronDown, Plus, Bike, Car } from 'lucide-react';
+import { ChevronDown, Plus, Bike, Car, Settings } from 'lucide-react';
 
 interface VehicleSelectorProps {
   vehicles: Vehicle[];
@@ -26,6 +28,7 @@ export default function VehicleSelector({
   onVehiclesChange,
 }: VehicleSelectorProps) {
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const router = useRouter();
 
   return (
     <div className="flex items-center gap-3 flex-wrap">
@@ -55,6 +58,21 @@ export default function VehicleSelector({
                 {vehicle.name}
               </DropdownMenuItem>
             ))}
+            {selected && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => {
+                    hapticButton();
+                    router.push(`/vehicle/${selected.id}`);
+                  }}
+                  className="cursor-pointer transition-all duration-300 ease-in-out hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg text-blue-600"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  Manage Vehicle
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

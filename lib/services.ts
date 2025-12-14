@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { Vehicle, FuelEntry, Reminder, DashboardStats, MonthlyCost, EfficiencyData } from './types';
+import type { Vehicle, FuelEntry, Reminder, DashboardStats, MonthlyCost, EfficiencyData, ServiceHistory } from './types';
 
 // ============================================================================
 // VEHICLES
@@ -332,4 +332,186 @@ export async function deleteReminder(id: string) {
     .eq('id', id);
 
   if (error) throw error;
+}
+
+// ============================================================================
+// VEHICLE DETAILS
+// ============================================================================
+
+export async function updateVehicleDetails(
+  id: string,
+  details: {
+    name?: string;
+    type?: 'car' | 'bike';
+    make?: string;
+    model?: string;
+    year?: number;
+    insurance_expiry?: string;
+    registration_expiry?: string;
+    puc_expiry?: string;
+  }
+) {
+  const { data, error } = await supabase
+    .from('vehicles')
+    .update(details)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Vehicle;
+}
+
+export async function getVehicleExpiryAlerts(vehicleId?: string) {
+  let query = supabase
+    .from('vehicles')
+    .select('*');
+
+  if (vehicleId) {
+    query = query.eq('id', vehicleId);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const vehicles = data as Vehicle[];
+  const alerts: Array<{
+    vehicleId: string;
+    vehicleName: string;
+    type: 'insurance' | 'registration' | 'puc';
+    expiryDate: string;
+    daysUntilExpiry: number;
+  }> = [];
+
+  const now = new Date();
+  const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+  vehicles.forEach((vehicle) => {
+    const checkExpiry = (date: string | undefined, type: 'insurance' | 'registration' | 'puc') => {
+      if (!date) return;
+      const expiryDate = new Date(date);
+      if (expiryDate <= thirtyDaysFromNow) {
+        const daysUntilExpiry = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        alerts.push({
+          vehicleId: vehicle.id,
+          vehicleName: vehicle.name,
+          type,
+          expiryDate: date,
+          daysUntilExpiry,
+        });
+      }
+    };
+
+    checkExpiry(vehicle.insurance_expiry, 'insurance');
+    checkExpiry(vehicle.registration_expiry, 'registration');
+    checkExpiry(vehicle.puc_expiry, 'puc');
+  });
+
+  return alerts.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+}
+
+// ============================================================================
+// SERVICE HISTORY
+// ============================================================================
+
+export async function getServiceHistory(vehicleId?: string) {
+  let query = supabase
+    .from('service_history')
+    .select('*')
+    .order('service_date', { ascending: false });
+
+  if (vehicleId) {
+    query = query.eq('vehicle_id', vehicleId);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data as ServiceHistory[];
+}
+
+export async function addServiceHistory(entry: {
+  vehicle_id: string;
+  service_date: string;
+  service_type: string;
+  description?: string;
+  cost?: number;
+  mileage?: number;
+  next_service_due?: string;
+  next_service_mileage?: number;
+  service_provider?: string;
+  notes?: string;
+}) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data, error } = await supabase
+    .from('service_history')
+    .insert({
+      user_id: user.id,
+      ...entry,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as ServiceHistory;
+}
+
+export async function updateServiceHistory(id: string, entry: {
+  service_date?: string;
+  service_type?: string;
+  description?: string;
+  cost?: number;
+  mileage?: number;
+  next_service_due?: string;
+  next_service_mileage?: number;
+  service_provider?: string;
+  notes?: string;
+}) {
+  const { data, error } = await supabase
+    .from('service_history')
+    .update(entry)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as ServiceHistory;
+}
+
+export async function deleteServiceHistory(id: string) {
+  const { error } = await supabase
+    .from('service_history')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+}
+
+export async function getUpcomingServices(vehicleId?: string) {
+  let query = supabase
+    .from('service_history')
+    .select('*')
+    .not('next_service_due', 'is', null)
+    .order('next_service_due', { ascending: true });
+
+  if (vehicleId) {
+    query = query.eq('vehicle_id', vehicleId);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const services = data as ServiceHistory[];
+  const now = new Date();
+  const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+  // Filter to only show upcoming services in the next 30 days or overdue
+  return services.filter((service) => {
+    if (!service.next_service_due) return false;
+    const dueDate = new Date(service.next_service_due);
+    return dueDate <= thirtyDaysFromNow;
+  });
 }

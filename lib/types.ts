@@ -4,7 +4,14 @@ export interface Vehicle {
   user_id: string;
   name: string;
   type: 'car' | 'bike';
+  make?: string;
+  model?: string;
+  year?: number;
+  insurance_expiry?: string;
+  registration_expiry?: string;
+  puc_expiry?: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface FuelEntry {
@@ -30,6 +37,23 @@ export interface Reminder {
   last_triggered_at: string | null;
   is_active: boolean;
   created_at: string;
+}
+
+export interface ServiceHistory {
+  id: string;
+  user_id: string;
+  vehicle_id: string;
+  service_date: string;
+  service_type: string;
+  description?: string;
+  cost?: number;
+  mileage?: number;
+  next_service_due?: string;
+  next_service_mileage?: number;
+  service_provider?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // User profile

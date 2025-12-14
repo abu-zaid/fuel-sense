@@ -28,6 +28,9 @@ interface AddVehicleDialogProps {
 export default function AddVehicleDialog({ open, onOpenChange, onSuccess }: AddVehicleDialogProps) {
   const [name, setName] = useState('');
   const [type, setType] = useState<'car' | 'bike'>('car');
+  const [make, setMake] = useState('');
+  const [model, setModel] = useState('');
+  const [year, setYear] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -37,10 +40,24 @@ export default function AddVehicleDialog({ open, onOpenChange, onSuccess }: AddV
     setLoading(true);
 
     try {
-      await addVehicle(name, type);
+      const vehicle = await addVehicle(name, type);
+      
+      // Update with additional details if provided
+      if (make || model || year) {
+        const { updateVehicleDetails } = await import('@/lib/services');
+        await updateVehicleDetails(vehicle.id, {
+          make: make || undefined,
+          model: model || undefined,
+          year: year ? Number(year) : undefined,
+        });
+      }
+      
       hapticSuccess();
       setName('');
       setType('car');
+      setMake('');
+      setModel('');
+      setYear('');
       onOpenChange(false);
       onSuccess();
     } catch (err) {
@@ -97,6 +114,41 @@ export default function AddVehicleDialog({ open, onOpenChange, onSuccess }: AddV
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">Make</label>
+              <Input
+                value={make}
+                onChange={(e) => setMake(e.target.value)}
+                placeholder="e.g., Honda, Toyota"
+                disabled={loading}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">Model</label>
+              <Input
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="e.g., Civic, Corolla"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-2">Year</label>
+            <Input
+              type="number"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+              placeholder="e.g., 2020"
+              min="1900"
+              max="2100"
+              disabled={loading}
+            />
           </div>
 
           {error && <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">{error}</div>}
