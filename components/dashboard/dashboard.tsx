@@ -10,6 +10,8 @@ import Header from '@/components/layout/header';
 import StatCards from '@/components/dashboard/stat-cards';
 import { Card } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/ui/animations';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Onboarding, useOnboarding } from '@/components/ui/onboarding';
 import { Car, Bike } from 'lucide-react';
 import DashboardUI from './dashboard-ui';
 import FuelEntryModal from '@/components/entries/fuel-entry-modal';
@@ -62,6 +64,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddModal, setShowAddModal] = useState(false);
+  const { showOnboarding, completeOnboarding } = useOnboarding();
 
   useEffect(() => {
     loadVehicles();
@@ -126,8 +129,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-stone-100 to-stone-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 pb-24 md:pb-32">
-      <Header onLogout={signOut} vehicles={vehicles} onImportSuccess={loadVehicles} />
+    <>
+      <Onboarding open={showOnboarding} onComplete={completeOnboarding} />
+      <div className="min-h-screen bg-gradient-to-br from-stone-50 via-stone-100 to-stone-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 pb-24 md:pb-32">
+        <Header onLogout={signOut} vehicles={vehicles} onImportSuccess={loadVehicles} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 md:py-8 pb-safe">
         {selectedVehicle && (
@@ -149,15 +154,15 @@ export default function Dashboard() {
         )}
 
         {vehicles.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="inline-block mb-4">
-              <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-                <BarChart3 className="w-8 h-8 text-blue-500" />
-              </div>
-            </div>
-            <p className="text-stone-600 text-lg font-medium">No vehicles added yet</p>
-            <p className="text-stone-400 text-sm mt-2">Add your first vehicle to get started</p>
-          </div>
+          <EmptyState
+            icon={Car}
+            title="No Vehicles Yet"
+            description="Start tracking your fuel consumption by adding your first vehicle. You can add cars, bikes, or any vehicle you want to monitor."
+            action={{
+              label: 'Add Your First Vehicle',
+              onClick: () => router.push('/profile'),
+            }}
+          />
         ) : (
           <>
             <motion.div 
@@ -412,6 +417,7 @@ export default function Dashboard() {
           onEditClose={() => setShowAddModal(false)}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }

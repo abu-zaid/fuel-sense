@@ -18,6 +18,7 @@ import { getFuelEntries, deleteFuelEntry } from '@/lib/services';
 import { exportToCSV } from '@/lib/csv';
 import { hapticDelete, hapticButton, hapticToggle, hapticSuccess } from '@/lib/haptic';
 import { toast } from '@/components/ui/toast';
+import { EmptyState } from '@/components/ui/empty-state';
 import type { FuelEntry, Vehicle } from '@/lib/types';
 import { Download, Trash2, History, Edit, Search, Filter, TrendingUp, TrendingDown, Calendar, DollarSign, Fuel, ArrowUpDown } from 'lucide-react';
 import FuelEntryModal from './fuel-entry-modal';
@@ -394,12 +395,24 @@ export default function FuelHistory({
                       <AnimatePresence>
                         {filteredAndSortedEntries.length === 0 ? (
                           <TableRow>
-                            <TableCell colSpan={7} className="text-center py-12">
-                              <div className="flex flex-col items-center gap-2">
-                                <Search className="w-8 h-8 text-stone-400 dark:text-stone-600" />
-                                <p className="text-stone-600 dark:text-stone-400 font-medium">No entries found</p>
-                                <p className="text-sm text-stone-500 dark:text-stone-500">Try adjusting your search or filters</p>
-                              </div>
+                            <TableCell colSpan={7} className="py-2">
+                              <EmptyState
+                                icon={entries.length === 0 ? Fuel : Search}
+                                title={entries.length === 0 ? "No Fuel Entries Yet" : "No Matches Found"}
+                                description={
+                                  entries.length === 0
+                                    ? "Start tracking your fuel consumption by adding your first fuel entry."
+                                    : "Try adjusting your search query or filters to find what you're looking for."
+                                }
+                                action={
+                                  entries.length === 0
+                                    ? {
+                                        label: 'Add First Entry',
+                                        onClick: onDataChange,
+                                      }
+                                    : undefined
+                                }
+                              />
                             </TableCell>
                           </TableRow>
                         ) : (
@@ -463,11 +476,23 @@ export default function FuelHistory({
           {/* Mobile Card View */}
           <div className="md:hidden space-y-3">
             {filteredAndSortedEntries.length === 0 ? (
-              <Card className="p-12 text-center border-0 shadow-lg rounded-3xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
-                <Search className="w-12 h-12 mx-auto mb-3 text-stone-400 dark:text-stone-600" />
-                <p className="text-stone-600 dark:text-stone-400 font-semibold">No entries found</p>
-                <p className="text-sm text-stone-500 dark:text-stone-500 mt-1">Try adjusting your search or filters</p>
-              </Card>
+              <EmptyState
+                icon={entries.length === 0 ? Fuel : Search}
+                title={entries.length === 0 ? "No Fuel Entries Yet" : "No Matches Found"}
+                description={
+                  entries.length === 0
+                    ? "Start tracking your fuel consumption by adding your first fuel entry."
+                    : "Try adjusting your search query or filters to find what you're looking for."
+                }
+                action={
+                  entries.length === 0
+                    ? {
+                        label: 'Add First Entry',
+                        onClick: onDataChange,
+                      }
+                    : undefined
+                }
+              />
             ) : (
               <>
               <AnimatePresence>
