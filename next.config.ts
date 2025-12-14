@@ -7,8 +7,11 @@ const nextConfig: NextConfig = {
   
   // Enable experimental features for better performance
   experimental: {
-    optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion'],
+    optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
   },
+
+  // Turbopack configuration (Next.js 16 uses Turbopack by default)
+  turbopack: {},
 
   // Optimize images
   images: {

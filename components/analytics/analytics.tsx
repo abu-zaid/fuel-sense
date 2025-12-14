@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { 
@@ -84,7 +84,7 @@ interface SpendingAlert {
   percentage: number;
 }
 
-export default function Analytics({ vehicleId }: AnalyticsProps) {
+function Analytics({ vehicleId }: AnalyticsProps) {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState<FuelEntry[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyAnalytics[]>([]);
@@ -768,3 +768,5 @@ export default function Analytics({ vehicleId }: AnalyticsProps) {
     </motion.div>
   );
 }
+
+export default memo(Analytics);

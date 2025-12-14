@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,55 +39,13 @@ export default function FuelHistory({
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'efficiency'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [filterPeriod, setFilterPeriod] = useState<'all' | '7days' | '30days' | '90days'>('all');
-
-  useEffect(() => {
-    loadEntries();
-  }, [vehicleId]);
-
-  const loadEntries = async () => {
-    if (!vehicleId) return;
-    try {
-      const data = await getFuelEntries(vehicleId);
-      setEntries(data);
-    } catch (error) {
-      console.error('Failed to load entries:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    hapticDelete();
-    if (!confirm('Delete this entry?')) return;
-    try {
-      await deleteFuelEntry(id);
-      hapticSuccess();
-      loadEntries();
-      onDataChange();
-    } catch (error) {
-      console.error('Failed to delete entry:', error);
-    }
-  };
-
-  const handleExport = () => {
-    if (!vehicle) return;
-    hapticButton();
-    exportToCSV(
-      filteredAndSortedEntries,
-      vehicle,
-      `fuel-tracker-${vehicle.name}-${Date.now()}.csv`
-    );
-  };
-
-  const handleSort = (field: 'date' | 'amount' | 'efficiency') => {
-    hapticToggle();
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('desc');
-    }
-  };
+  const [displayCount, setDisplayCount] = useState(20);
+  const [hasMore, setHasMore] = useState(true);
+  
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 0,
+    triggerOnce: false,
+  });
 
   // Filter and sort entries
   const filteredAndSortedEntries = useMemo(() => {
@@ -163,6 +122,77 @@ export default function FuelHistory({
       worstEfficiency,
     };
   }, [filteredAndSortedEntries]);
+
+  const loadEntries = async () => {
+    if (!vehicleId) return;
+    try {
+      const data = await getFuelEntries(vehicleId);
+      setEntries(data);
+    } catch (error) {
+      console.error('Failed to load entries:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = useCallback(async (id: string) => {
+    hapticDelete();
+    if (!confirm('Delete this entry?')) return;
+    try {
+      await deleteFuelEntry(id);
+      hapticSuccess();
+      loadEntries();
+      onDataChange();
+    } catch (error) {
+      console.error('Failed to delete entry:', error);
+    }
+  }, [onDataChange]);
+
+  const handleExport = useCallback(() => {
+    if (!vehicle) return;
+    hapticButton();
+    exportToCSV(
+      filteredAndSortedEntries,
+      vehicle,
+      `fuel-tracker-${vehicle.name}-${Date.now()}.csv`
+    );
+  }, [vehicle, filteredAndSortedEntries]);
+
+  const handleSort = useCallback((field: 'date' | 'amount' | 'efficiency') => {
+    hapticToggle();
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  }, [sortBy, sortOrder]);
+
+  useEffect(() => {
+    loadEntries();
+  }, [vehicleId]);
+
+  // Infinite scroll: load more when bottom is in view
+  useEffect(() => {
+    if (inView && hasMore && !loading) {
+      const timer = setTimeout(() => {
+        setDisplayCount(prev => {
+          const newCount = prev + 20;
+          if (newCount >= filteredAndSortedEntries.length) {
+            setHasMore(false);
+          }
+          return newCount;
+        });
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [inView, hasMore, loading, filteredAndSortedEntries.length]);
+
+  // Reset display count when filters change
+  useEffect(() => {
+    setDisplayCount(20);
+    setHasMore(filteredAndSortedEntries.length > 20);
+  }, [searchQuery, sortBy, sortOrder, filterPeriod, filteredAndSortedEntries.length]);
 
   if (loading) {
     return (
@@ -366,7 +396,7 @@ export default function FuelHistory({
                             </TableCell>
                           </TableRow>
                         ) : (
-                          filteredAndSortedEntries.map((entry, index) => (
+                          filteredAndSortedEntries.slice(0, displayCount).map((entry, index) => (
                           <motion.tr
                             key={entry.id}
                             initial={{ opacity: 0, x: -20 }}
@@ -429,8 +459,9 @@ export default function FuelHistory({
                 <p className="text-sm text-stone-500 dark:text-stone-500 mt-1">Try adjusting your search or filters</p>
               </Card>
             ) : (
+              <>
               <AnimatePresence>
-                {filteredAndSortedEntries.map((entry, index) => (
+                {filteredAndSortedEntries.slice(0, displayCount).map((entry, index) => (
                 <motion.div
                   key={entry.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -505,6 +536,34 @@ export default function FuelHistory({
                 </motion.div>
                 ))}
               </AnimatePresence>
+              
+              {/* Load More Indicator */}
+              {hasMore && displayCount < filteredAndSortedEntries.length && (
+                <div ref={loadMoreRef} className="py-8 flex justify-center">
+                  <div className="animate-spin">
+                    <div className="w-8 h-8 border-3 border-stone-300 dark:border-slate-600 border-t-blue-500 rounded-full" />
+                  </div>
+                </div>
+              )}
+              </>
+            )}
+          </div>
+
+          {/* Load More Indicator for Desktop */}
+          <div className="hidden md:block">
+            {hasMore && displayCount < filteredAndSortedEntries.length && (
+              <div ref={loadMoreRef} className="py-8 flex justify-center">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-3 text-stone-600 dark:text-stone-400"
+                >
+                  <div className="animate-spin">
+                    <div className="w-8 h-8 border-3 border-stone-300 dark:border-slate-600 border-t-blue-500 rounded-full" />
+                  </div>
+                  <span className="text-sm font-medium">Loading more entries...</span>
+                </motion.div>
+              </div>
             )}
           </div>
         </>

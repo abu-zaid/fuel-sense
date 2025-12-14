@@ -11,13 +11,52 @@ import StatCards from '@/components/dashboard/stat-cards';
 import { Card } from '@/components/ui/card';
 import { Car, Bike } from 'lucide-react';
 import DashboardUI from './dashboard-ui';
-import FuelHistory from '@/components/entries/fuel-history';
 import FuelEntryModal from '@/components/entries/fuel-entry-modal';
+
+const FuelHistory = dynamic(() => import('@/components/entries/fuel-history'), {
+  loading: () => (
+    <div className="flex items-center justify-center py-12">
+      <div className="animate-spin">
+        <div className="w-12 h-12 border-4 border-stone-300 dark:border-slate-600 border-t-blue-500 rounded-full" />
+      </div>
+    </div>
+  ),
+  ssr: false,
+});
 import ProfileContent from '@/components/profile/profile-content';
-import EfficiencyChart from '@/components/charts/efficiency-chart';
-import CostChart from '@/components/charts/cost-chart';
-import Analytics from '@/components/analytics/analytics';
+import dynamic from 'next/dynamic';
+
+// Lazy load chart components for better performance
+const EfficiencyChart = dynamic(() => import('@/components/charts/efficiency-chart'), {
+  loading: () => (
+    <div className="h-[300px] flex items-center justify-center bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900 rounded-3xl">
+      <div className="animate-pulse text-stone-400 dark:text-stone-600">Loading chart...</div>
+    </div>
+  ),
+  ssr: false,
+});
+
+const CostChart = dynamic(() => import('@/components/charts/cost-chart'), {
+  loading: () => (
+    <div className="h-[300px] flex items-center justify-center bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900 rounded-3xl">
+      <div className="animate-pulse text-stone-400 dark:text-stone-600">Loading chart...</div>
+    </div>
+  ),
+  ssr: false,
+});
 import { getDefaultVehicle } from '@/lib/profile';
+
+// Lazy load heavy components
+const Analytics = dynamic(() => import('@/components/analytics/analytics'), {
+  loading: () => (
+    <div className="flex items-center justify-center py-12">
+      <div className="animate-spin">
+        <div className="w-12 h-12 border-4 border-stone-300 dark:border-slate-600 border-t-blue-500 rounded-full" />
+      </div>
+    </div>
+  ),
+  ssr: false,
+});
 import { hapticNavigate } from '@/lib/haptic';
 import { BarChart3, Zap, History, UserCircle } from 'lucide-react';
 

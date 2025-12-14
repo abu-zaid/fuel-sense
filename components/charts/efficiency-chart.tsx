@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import {
   AreaChart,
   Area,
@@ -20,7 +20,7 @@ interface EfficiencyChartProps {
   compact?: boolean;
 }
 
-export default function EfficiencyChart({
+function EfficiencyChart({
   vehicleId,
   compact = false,
 }: EfficiencyChartProps) {
@@ -187,3 +187,5 @@ export default function EfficiencyChart({
     </Card>
   );
 }
+
+export default memo(EfficiencyChart);
