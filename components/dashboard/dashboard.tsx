@@ -7,8 +7,9 @@ import { useAuth } from '@/app/providers';
 import { getVehicles, getFuelEntries } from '@/lib/services';
 import type { Vehicle, FuelEntry } from '@/lib/types';
 import Header from '@/components/layout/header';
-import VehicleSelector from '@/components/vehicles/vehicle-selector';
 import StatCards from '@/components/dashboard/stat-cards';
+import { Card } from '@/components/ui/card';
+import { Car, Bike } from 'lucide-react';
 import DashboardUI from './dashboard-ui';
 import FuelHistory from '@/components/entries/fuel-history';
 import FuelEntryModal from '@/components/entries/fuel-entry-modal';
@@ -101,9 +102,23 @@ export default function Dashboard() {
       <Header onLogout={signOut} vehicles={vehicles} onImportSuccess={loadVehicles} />
 
       <main className="max-w-7xl mx-auto px-4 py-6 md:py-8 pb-safe">
-        <div className="mb-8">
-          <VehicleSelector vehicles={vehicles} selected={selectedVehicle} onSelect={setSelectedVehicle} onVehiclesChange={loadVehicles} />
-        </div>
+        {selectedVehicle && (
+          <div className="mb-8">
+            <Card className="p-4 border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
+              <div className="flex items-center gap-3">
+                {selectedVehicle.type === 'car' ? (
+                  <Car className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                ) : (
+                  <Bike className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                )}
+                <div>
+                  <p className="text-sm text-stone-500 dark:text-stone-400">Current Vehicle</p>
+                  <p className="text-lg font-bold text-stone-900 dark:text-white">{selectedVehicle.name}</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {vehicles.length === 0 ? (
           <div className="text-center py-16">

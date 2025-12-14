@@ -84,18 +84,18 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="p-6">
+      <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-3">
             {vehicle.type === 'car' ? (
-              <Car className="w-8 h-8 text-blue-500" />
+              <Car className="w-8 h-8 text-blue-500 dark:text-blue-400" />
             ) : (
-              <Bike className="w-8 h-8 text-blue-500" />
+              <Bike className="w-8 h-8 text-blue-500 dark:text-blue-400" />
             )}
             <div>
-              <h2 className="text-2xl font-bold text-stone-800">{vehicle.name}</h2>
+              <h2 className="text-2xl font-bold text-stone-800 dark:text-white">{vehicle.name}</h2>
               {vehicle.make && vehicle.model && (
-                <p className="text-stone-600">
+                <p className="text-stone-600 dark:text-stone-400">
                   {vehicle.make} {vehicle.model} {vehicle.year && `(${vehicle.year})`}
                 </p>
               )}
@@ -109,7 +109,7 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
               }}
               variant="outline"
               size="sm"
-              className="gap-2"
+              className="gap-2 border-stone-300 dark:border-slate-600 hover:bg-stone-100 dark:hover:bg-slate-700"
             >
               <Pencil className="w-4 h-4" />
               Edit
@@ -120,53 +120,56 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
         {/* Basic Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Vehicle Name</label>
+            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Vehicle Name</label>
             {isEditing ? (
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 disabled={loading}
+                className="bg-white dark:bg-slate-900 border-stone-300 dark:border-slate-600"
               />
             ) : (
-              <p className="text-stone-800 py-2">{vehicle.name}</p>
+              <p className="text-stone-800 dark:text-white py-2">{vehicle.name}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Type</label>
-            <p className="text-stone-800 py-2 capitalize">{vehicle.type}</p>
+            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Type</label>
+            <p className="text-stone-800 dark:text-white py-2 capitalize">{vehicle.type}</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Make</label>
+            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Make</label>
             {isEditing ? (
               <Input
                 value={formData.make}
                 onChange={(e) => setFormData({ ...formData, make: e.target.value })}
                 placeholder="e.g., Honda, Toyota"
                 disabled={loading}
+                className="bg-white dark:bg-slate-900 border-stone-300 dark:border-slate-600"
               />
             ) : (
-              <p className="text-stone-800 py-2">{vehicle.make || 'Not set'}</p>
+              <p className="text-stone-800 dark:text-white py-2">{vehicle.make || 'Not set'}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Model</label>
+            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Model</label>
             {isEditing ? (
               <Input
                 value={formData.model}
                 onChange={(e) => setFormData({ ...formData, model: e.target.value })}
                 placeholder="e.g., Civic, Corolla"
                 disabled={loading}
+                className="bg-white dark:bg-slate-900 border-stone-300 dark:border-slate-600"
               />
             ) : (
-              <p className="text-stone-800 py-2">{vehicle.model || 'Not set'}</p>
+              <p className="text-stone-800 dark:text-white py-2">{vehicle.model || 'Not set'}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-2">Year</label>
+            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Year</label>
             {isEditing ? (
               <Input
                 type="number"
@@ -176,9 +179,10 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
                 min="1900"
                 max="2100"
                 disabled={loading}
+                className="bg-white dark:bg-slate-900 border-stone-300 dark:border-slate-600"
               />
             ) : (
-              <p className="text-stone-800 py-2">{vehicle.year || 'Not set'}</p>
+              <p className="text-stone-800 dark:text-white py-2">{vehicle.year || 'Not set'}</p>
             )}
           </div>
         </div>
@@ -212,19 +216,19 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
       </Card>
 
       {/* Document Expiry Tracking */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-stone-800 mb-4 flex items-center gap-2">
-          <FileText className="w-5 h-5" />
+      <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
+        <h3 className="text-lg font-semibold text-stone-800 dark:text-white mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-stone-600 dark:text-stone-400" />
           Document Expiry Tracking
         </h3>
 
         <div className="space-y-4">
           {/* Insurance Expiry */}
-          <div className="flex items-center justify-between p-4 bg-stone-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-stone-50 dark:bg-slate-800/50 rounded-lg">
             <div className="flex items-center gap-3">
-              <Shield className="w-5 h-5 text-blue-500" />
+              <Shield className="w-5 h-5 text-blue-500 dark:text-blue-400" />
               <div>
-                <p className="font-medium text-stone-800">Insurance</p>
+                <p className="font-medium text-stone-800 dark:text-white">Insurance</p>
                 {isEditing ? (
                   <Input
                     type="date"
@@ -249,11 +253,11 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
           </div>
 
           {/* Registration Expiry */}
-          <div className="flex items-center justify-between p-4 bg-stone-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-stone-50 dark:bg-slate-800/50 rounded-lg">
             <div className="flex items-center gap-3">
-              <Calendar className="w-5 h-5 text-green-500" />
+              <Calendar className="w-5 h-5 text-green-500 dark:text-green-400" />
               <div>
-                <p className="font-medium text-stone-800">Registration</p>
+                <p className="font-medium text-stone-800 dark:text-white">Registration</p>
                 {isEditing ? (
                   <Input
                     type="date"
@@ -278,11 +282,11 @@ export default function VehicleDetails({ vehicle, onUpdate }: VehicleDetailsProp
           </div>
 
           {/* PUC Expiry */}
-          <div className="flex items-center justify-between p-4 bg-stone-50 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-stone-50 dark:bg-slate-800/50 rounded-lg">
             <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5 text-purple-500" />
+              <FileText className="w-5 h-5 text-purple-500 dark:text-purple-400" />
               <div>
-                <p className="font-medium text-stone-800">PUC Certificate</p>
+                <p className="font-medium text-stone-800 dark:text-white">PUC Certificate</p>
                 {isEditing ? (
                   <Input
                     type="date"

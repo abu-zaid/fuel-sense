@@ -8,7 +8,8 @@ import { getUserVehicles, getDefaultVehicle, setDefaultVehicle } from '@/lib/pro
 import { hapticToggle, hapticButton, hapticSuccess } from '@/lib/haptic';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { LogOut, User, Mail, Car, Calendar, Check, Moon, Sun, Monitor } from 'lucide-react';
+import AddVehicleDialog from '@/components/vehicles/add-vehicle-dialog';
+import { LogOut, User, Mail, Car, Calendar, Check, Moon, Sun, Monitor, Settings, Plus, Bike } from 'lucide-react';
 import type { Vehicle } from '@/lib/types';
 
 interface ProfileContentProps {
@@ -24,6 +25,7 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   useEffect(() => {
     loadProfileData();
@@ -134,67 +136,110 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
         </Card>
       </motion.div>
 
-      {/* Default Vehicle Card */}
-      {vehicles.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
-          <Card className="border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-4">
+      {/* Vehicle Management Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        <Card className="border-0 shadow-xl bg-gradient-to-br from-stone-50 to-stone-100 dark:from-slate-800 dark:to-slate-900">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                   <Car className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-stone-900 dark:text-white">Default Vehicle</h3>
-                  <p className="text-xs text-stone-500 dark:text-stone-400">Select your primary vehicle</p>
+                  <h3 className="text-lg font-bold text-stone-900 dark:text-white">Vehicle Management</h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400">Manage your vehicles and set default</p>
                 </div>
               </div>
+            </div>
 
+            {vehicles.length > 0 ? (
               <div className="space-y-2">
                 {vehicles.map((vehicle) => (
-                  <motion.button
+                  <motion.div
                     key={vehicle.id}
-                    onClick={() => handleDefaultVehicleChange(vehicle.id)}
-                    disabled={saving}
                     whileTap={{ scale: 0.98 }}
-                    className={`w-full p-4 rounded-xl border-2 transition-all duration-300 text-left ${
+                    className={`w-full p-4 rounded-xl border-2 transition-all duration-300 ${
                       defaultVehicleId === vehicle.id
                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-stone-200 dark:border-slate-700 bg-white dark:bg-slate-800/50 hover:border-stone-300 dark:hover:border-slate-600'
+                        : 'border-stone-200 dark:border-slate-700 bg-white dark:bg-slate-800/50'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${
+                      <button
+                        onClick={() => handleDefaultVehicleChange(vehicle.id)}
+                        disabled={saving}
+                        className="flex items-center gap-3 flex-1 text-left"
+                      >
+                        <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
                           defaultVehicleId === vehicle.id 
                             ? 'bg-blue-500' 
                             : 'bg-stone-300 dark:bg-slate-600'
                         }`} />
-                        <div>
-                          <p className="font-semibold text-stone-900 dark:text-white">{vehicle.name}</p>
-                          <p className="text-xs text-stone-500 dark:text-stone-400 capitalize">{vehicle.type}</p>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            {vehicle.type === 'car' ? (
+                              <Car className="w-4 h-4 text-stone-600 dark:text-stone-400" />
+                            ) : (
+                              <Bike className="w-4 h-4 text-stone-600 dark:text-stone-400" />
+                            )}
+                            <p className="font-semibold text-stone-900 dark:text-white">{vehicle.name}</p>
+                          </div>
+                          {vehicle.make && vehicle.model && (
+                            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                              {vehicle.make} {vehicle.model} {vehicle.year && `(${vehicle.year})`}
+                            </p>
+                          )}
                         </div>
-                      </div>
-                      {defaultVehicleId === vehicle.id && (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                        >
-                          <Check className="w-5 h-5 text-blue-500" />
-                        </motion.div>
-                      )}
+                        {defaultVehicleId === vehicle.id && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                          >
+                            <Check className="w-5 h-5 text-blue-500" />
+                          </motion.div>
+                        )}
+                      </button>
+                      <Button
+                        onClick={() => {
+                          hapticButton();
+                          window.location.href = `/vehicle/${vehicle.id}`;
+                        }}
+                        variant="ghost"
+                        size="sm"
+                        className="ml-2 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                      >
+                        <Settings className="w-4 h-4" />
+                      </Button>
                     </div>
-                  </motion.button>
+                  </motion.div>
                 ))}
               </div>
-            </div>
-          </Card>
-        </motion.div>
-      )}
+            ) : (
+              <div className="text-center py-8">
+                <Car className="w-12 h-12 text-stone-400 dark:text-stone-600 mx-auto mb-3" />
+                <p className="text-stone-600 dark:text-stone-400 mb-4">No vehicles added yet</p>
+              </div>
+            )}
+
+            <Button
+              onClick={() => {
+                hapticButton();
+                setShowAddDialog(true);
+              }}
+              variant="outline"
+              className="w-full mt-4 gap-2 border-2 border-dashed border-stone-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+            >
+              <Plus className="w-4 h-4" />
+              Add New Vehicle
+            </Button>
+          </div>
+        </Card>
+      </motion.div>
 
       {/* Theme Selector Card */}
       <motion.div
@@ -369,6 +414,12 @@ export default function ProfileContent({ onLogout, onDefaultVehicleChange }: Pro
           </div>
         </Card>
       </motion.div>
+      {/* Add Vehicle Dialog */}
+      <AddVehicleDialog 
+        open={showAddDialog} 
+        onOpenChange={setShowAddDialog} 
+        onSuccess={loadProfileData} 
+      />
     </div>
   );
 }
