@@ -1,6 +1,7 @@
 {
   "name": "FuelSense - Fuel Tracker",
   "short_name": "FuelSense",
+  "version": "2.0.0",
   "description": "Track your vehicle fuel consumption with ease. Monitor efficiency, costs, and analytics.",
   "start_url": "/",
   "scope": "/",

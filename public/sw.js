@@ -1,5 +1,5 @@
 // Minimal, safe service worker that won't break the app
-const VERSION = '1.0.1765776450564';
+const VERSION = '1.0.1765788224239';
 const CACHE_NAME = `fuelsense-v${VERSION}`;
 
 console.log('[SW] Service Worker Version:', VERSION);
