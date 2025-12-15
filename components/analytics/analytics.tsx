@@ -19,7 +19,14 @@ import {
   ResponsiveContainer,
   Legend,
   ComposedChart,
-  Cell
+  Cell,
+  PieChart,
+  Pie,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis
 } from 'recharts';
 import { 
   TrendingUp, 
@@ -38,7 +45,12 @@ import {
   Activity,
   ArrowUpRight,
   ArrowDownRight,
-  Minus
+  Minus,
+  PieChart as PieChartIcon,
+  MapPin,
+  Zap,
+  Award,
+  TrendingUpIcon
 } from 'lucide-react';
 import { getFuelEntries } from '@/lib/services';
 import type { FuelEntry } from '@/lib/types';
@@ -84,6 +96,34 @@ interface SpendingAlert {
   percentage: number;
 }
 
+interface DayOfWeekAnalytics {
+  day: string;
+  count: number;
+  avgCost: number;
+  avgFuel: number;
+}
+
+interface DistanceDistribution {
+  range: string;
+  count: number;
+  percentage: number;
+}
+
+interface SeasonalPattern {
+  month: string;
+  avgEfficiency: number;
+  avgCost: number;
+  count: number;
+}
+
+interface YearlyComparison {
+  year: string;
+  totalCost: number;
+  totalDistance: number;
+  avgEfficiency: number;
+  totalFuel: number;
+}
+
 function Analytics({ vehicleId }: AnalyticsProps) {
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState<FuelEntry[]>([]);
@@ -101,6 +141,10 @@ function Analytics({ vehicleId }: AnalyticsProps) {
   });
   const [predictive, setPredictive] = useState<PredictiveAnalytics | null>(null);
   const [spendingAlerts, setSpendingAlerts] = useState<SpendingAlert[]>([]);
+  const [dayOfWeekData, setDayOfWeekData] = useState<DayOfWeekAnalytics[]>([]);
+  const [distanceDistribution, setDistanceDistribution] = useState<DistanceDistribution[]>([]);
+  const [seasonalPatterns, setSeasonalPatterns] = useState<SeasonalPattern[]>([]);
+  const [yearlyComparison, setYearlyComparison] = useState<YearlyComparison[]>([]);
 
   useEffect(() => {
     if (vehicleId) {
@@ -309,6 +353,109 @@ function Analytics({ vehicleId }: AnalyticsProps) {
         }
         
         setSpendingAlerts(alerts);
+
+        // Day of Week Analysis
+        const dayMap = new Map<string, FuelEntry[]>();
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        
+        entries.forEach(entry => {
+          const day = dayNames[new Date(entry.created_at).getDay()];
+          if (!dayMap.has(day)) {
+            dayMap.set(day, []);
+          }
+          dayMap.get(day)?.push(entry);
+        });
+
+        const dayAnalytics: DayOfWeekAnalytics[] = dayNames.map(day => {
+          const dayEntries = dayMap.get(day) || [];
+          return {
+            day,
+            count: dayEntries.length,
+            avgCost: dayEntries.length > 0 
+              ? dayEntries.reduce((sum, e) => sum + e.amount, 0) / dayEntries.length 
+              : 0,
+            avgFuel: dayEntries.length > 0
+              ? dayEntries.reduce((sum, e) => sum + e.fuel_used, 0) / dayEntries.length
+              : 0
+          };
+        });
+        setDayOfWeekData(dayAnalytics);
+
+        // Distance Distribution (Histogram)
+        const distances = entries.map(e => e.distance).filter(d => d > 0);
+        const ranges = [
+          { min: 0, max: 100, label: '0-100 km' },
+          { min: 100, max: 200, label: '100-200 km' },
+          { min: 200, max: 300, label: '200-300 km' },
+          { min: 300, max: 400, label: '300-400 km' },
+          { min: 400, max: 500, label: '400-500 km' },
+          { min: 500, max: Infinity, label: '500+ km' }
+        ];
+
+        const distribution: DistanceDistribution[] = ranges.map(range => {
+          const count = distances.filter(d => d >= range.min && d < range.max).length;
+          return {
+            range: range.label,
+            count,
+            percentage: distances.length > 0 ? (count / distances.length) * 100 : 0
+          };
+        }).filter(d => d.count > 0);
+        setDistanceDistribution(distribution);
+
+        // Seasonal Patterns (aggregate by month name across all years)
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const seasonalMap = new Map<string, FuelEntry[]>();
+        
+        entries.forEach(entry => {
+          const monthName = monthNames[new Date(entry.created_at).getMonth()];
+          if (!seasonalMap.has(monthName)) {
+            seasonalMap.set(monthName, []);
+          }
+          seasonalMap.get(monthName)?.push(entry);
+        });
+
+        const seasonal: SeasonalPattern[] = monthNames.map(month => {
+          const monthEntries = seasonalMap.get(month) || [];
+          const totalDistance = monthEntries.reduce((sum, e) => sum + e.distance, 0);
+          const totalFuel = monthEntries.reduce((sum, e) => sum + e.fuel_used, 0);
+          
+          return {
+            month,
+            avgEfficiency: totalFuel > 0 ? totalDistance / totalFuel : 0,
+            avgCost: monthEntries.length > 0 
+              ? monthEntries.reduce((sum, e) => sum + e.amount, 0) / monthEntries.length 
+              : 0,
+            count: monthEntries.length
+          };
+        }).filter(s => s.count > 0);
+        setSeasonalPatterns(seasonal);
+
+        // Yearly Comparison
+        const yearMap = new Map<string, FuelEntry[]>();
+        entries.forEach(entry => {
+          const year = new Date(entry.created_at).getFullYear().toString();
+          if (!yearMap.has(year)) {
+            yearMap.set(year, []);
+          }
+          yearMap.get(year)?.push(entry);
+        });
+
+        const yearly: YearlyComparison[] = Array.from(yearMap.entries())
+          .map(([year, yearEntries]) => {
+            const totalCost = yearEntries.reduce((sum, e) => sum + e.amount, 0);
+            const totalDistance = yearEntries.reduce((sum, e) => sum + e.distance, 0);
+            const totalFuel = yearEntries.reduce((sum, e) => sum + e.fuel_used, 0);
+            
+            return {
+              year,
+              totalCost,
+              totalDistance,
+              avgEfficiency: totalFuel > 0 ? totalDistance / totalFuel : 0,
+              totalFuel
+            };
+          })
+          .sort((a, b) => a.year.localeCompare(b.year));
+        setYearlyComparison(yearly);
       }
     } catch (error) {
       console.error('Failed to load analytics:', error);
@@ -764,6 +911,302 @@ function Analytics({ vehicleId }: AnalyticsProps) {
             />
           </ScatterChart>
         </ResponsiveContainer>
+      </Card>
+
+      {/* Distance Distribution Histogram */}
+      {distanceDistribution.length > 0 && (
+        <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-cyan-50/30 to-stone-50 dark:from-cyan-950/30 dark:to-slate-900 rounded-3xl">
+          <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4 flex items-center gap-2">
+            <MapPin className="w-6 h-6 text-cyan-600" />
+            Distance Between Refuels Distribution
+          </h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={distanceDistribution} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
+              <XAxis dataKey="range" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <YAxis stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <Tooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 p-3">
+                        <p className="text-xs text-stone-500 dark:text-stone-400 mb-2">{String(payload[0].payload.range)}</p>
+                        <p className="text-sm font-semibold text-cyan-600 dark:text-cyan-400">
+                          {payload[0].value} trips ({Number(payload[0].payload.percentage).toFixed(1)}%)
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+                cursor={false}
+              />
+              <Bar dataKey="count" fill="#06b6d4" name="Number of Trips" radius={[12, 12, 0, 0]} animationDuration={1000} animationEasing="ease-out">
+                {distanceDistribution.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={`rgba(6, 182, 212, ${0.5 + (index * 0.1)})`} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Card>
+      )}
+
+      {/* Day of Week Pattern */}
+      {dayOfWeekData.some(d => d.count > 0) && (
+        <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-rose-50/30 to-stone-50 dark:from-rose-950/30 dark:to-slate-900 rounded-3xl">
+          <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4 flex items-center gap-2">
+            <Calendar className="w-6 h-6 text-rose-600" />
+            Refueling Pattern by Day of Week
+          </h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <RadarChart data={dayOfWeekData.filter(d => d.count > 0)} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
+              <PolarGrid stroke="rgba(148, 163, 184, 0.2)" />
+              <PolarAngleAxis 
+                dataKey="day" 
+                tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }}
+              />
+              <PolarRadiusAxis 
+                angle={90} 
+                domain={[0, 'auto']}
+                tick={{ fill: '#94a3b8', fontSize: 10 }}
+              />
+              <Radar 
+                name="Refuel Count" 
+                dataKey="count" 
+                stroke="#f43f5e" 
+                fill="#f43f5e" 
+                fillOpacity={0.5}
+                animationDuration={1000}
+                animationEasing="ease-out"
+              />
+              <Tooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0].payload;
+                    return (
+                      <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 p-3">
+                        <p className="text-xs text-stone-500 dark:text-stone-400 mb-2">{data.day}</p>
+                        <p className="text-sm font-semibold text-stone-900 dark:text-white">
+                          Refuels: {data.count}
+                        </p>
+                        <p className="text-sm font-semibold text-stone-900 dark:text-white">
+                          Avg Cost: ₹{data.avgCost.toFixed(2)}
+                        </p>
+                        <p className="text-sm font-semibold text-stone-900 dark:text-white">
+                          Avg Fuel: {data.avgFuel.toFixed(2)}L
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+        </Card>
+      )}
+
+      {/* Seasonal Patterns */}
+      {seasonalPatterns.length > 0 && (
+        <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-orange-50/30 to-stone-50 dark:from-orange-950/30 dark:to-slate-900 rounded-3xl">
+          <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4 flex items-center gap-2">
+            <Zap className="w-6 h-6 text-orange-600" />
+            Seasonal Efficiency Patterns
+          </h3>
+          <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">
+            Average efficiency and costs across all years by month
+          </p>
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={seasonalPatterns} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
+              <XAxis dataKey="month" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <YAxis yAxisId="left" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <YAxis yAxisId="right" orientation="right" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} cursor={false} />
+              <Legend />
+              <Area 
+                yAxisId="left"
+                type="monotone" 
+                dataKey="avgEfficiency" 
+                fill="rgba(249, 115, 22, 0.2)" 
+                stroke="#f97316" 
+                strokeWidth={3}
+                name="Avg Efficiency (km/l)"
+                animationDuration={1000}
+                animationEasing="ease-out"
+              />
+              <Line 
+                yAxisId="right"
+                type="monotone" 
+                dataKey="avgCost" 
+                stroke="#0ea5e9" 
+                strokeWidth={3}
+                name="Avg Cost (₹)"
+                dot={{ fill: '#0ea5e9', strokeWidth: 0, r: 4 }}
+                animationDuration={1000}
+                animationEasing="ease-out"
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </Card>
+      )}
+
+      {/* Year-over-Year Comparison */}
+      {yearlyComparison.length > 1 && (
+        <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-violet-50/30 to-stone-50 dark:from-violet-950/30 dark:to-slate-900 rounded-3xl">
+          <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-4 flex items-center gap-2">
+            <Award className="w-6 h-6 text-violet-600" />
+            Year-over-Year Performance
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {yearlyComparison.map((year, index) => {
+              const prevYear = index > 0 ? yearlyComparison[index - 1] : null;
+              const costChange = prevYear ? ((year.totalCost - prevYear.totalCost) / prevYear.totalCost) * 100 : 0;
+              const efficiencyChange = prevYear ? ((year.avgEfficiency - prevYear.avgEfficiency) / prevYear.avgEfficiency) * 100 : 0;
+              
+              return (
+                <div key={year.year} className="bg-stone-50 dark:bg-slate-800 rounded-xl p-4">
+                  <h4 className="text-2xl font-bold text-violet-600 dark:text-violet-400 mb-3">{year.year}</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-stone-600 dark:text-stone-400">Total Cost</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-stone-900 dark:text-white">₹{year.totalCost.toFixed(0)}</span>
+                        {prevYear && (
+                          <span className={`text-xs font-semibold ${costChange > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                            {costChange > 0 ? '↑' : '↓'}{Math.abs(costChange).toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-stone-600 dark:text-stone-400">Distance</span>
+                      <span className="font-bold text-stone-900 dark:text-white">{year.totalDistance.toFixed(0)} km</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-stone-600 dark:text-stone-400">Avg Efficiency</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-stone-900 dark:text-white">{year.avgEfficiency.toFixed(2)} km/l</span>
+                        {prevYear && (
+                          <span className={`text-xs font-semibold ${efficiencyChange > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {efficiencyChange > 0 ? '↑' : '↓'}{Math.abs(efficiencyChange).toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-stone-600 dark:text-stone-400">Total Fuel</span>
+                      <span className="font-bold text-stone-900 dark:text-white">{year.totalFuel.toFixed(0)} L</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={yearlyComparison} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" vertical={false} strokeWidth={1} />
+              <XAxis dataKey="year" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <YAxis yAxisId="left" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <YAxis yAxisId="right" orientation="right" stroke="rgba(148, 163, 184, 0.4)" tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 500 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} cursor={false} />
+              <Legend />
+              <Bar yAxisId="left" dataKey="totalCost" fill="#8b5cf6" name="Total Cost (₹)" radius={[12, 12, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
+              <Line yAxisId="right" type="monotone" dataKey="avgEfficiency" stroke="#10b981" strokeWidth={3} name="Avg Efficiency (km/l)" dot={{ fill: '#10b981', strokeWidth: 0, r: 5 }} animationDuration={1000} animationEasing="ease-out" />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </Card>
+      )}
+
+      {/* Record Insights */}
+      <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950 rounded-3xl">
+        <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-6 flex items-center gap-2">
+          <TrendingUpIcon className="w-6 h-6 text-emerald-600" />
+          Record Milestones
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {entries.length > 0 && (
+            <>
+              <div className="bg-gradient-to-br from-emerald-100 to-emerald-50 dark:from-emerald-900/50 dark:to-emerald-800/30 rounded-xl p-4 border-2 border-emerald-300 dark:border-emerald-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <Award className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  <h4 className="font-semibold text-stone-900 dark:text-white">Best Efficiency</h4>
+                </div>
+                <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                  {insights.bestEfficiency.toFixed(2)} km/l
+                </p>
+                <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
+                  {new Date(entries.find(e => e.efficiency === insights.bestEfficiency)?.created_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/30 rounded-xl p-4 border-2 border-blue-300 dark:border-blue-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <Navigation className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <h4 className="font-semibold text-stone-900 dark:text-white">Longest Trip</h4>
+                </div>
+                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                  {Math.max(...entries.map(e => e.distance)).toFixed(0)} km
+                </p>
+                <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
+                  {new Date(entries.find(e => e.distance === Math.max(...entries.map(e => e.distance)))?.created_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-amber-100 to-amber-50 dark:from-amber-900/50 dark:to-amber-800/30 rounded-xl p-4 border-2 border-amber-300 dark:border-amber-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <IndianRupee className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <h4 className="font-semibold text-stone-900 dark:text-white">Highest Cost</h4>
+                </div>
+                <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">
+                  ₹{Math.max(...entries.map(e => e.amount)).toFixed(0)}
+                </p>
+                <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
+                  {new Date(entries.find(e => e.amount === Math.max(...entries.map(e => e.amount)))?.created_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/50 dark:to-purple-800/30 rounded-xl p-4 border-2 border-purple-300 dark:border-purple-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <Droplet className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  <h4 className="font-semibold text-stone-900 dark:text-white">Largest Refuel</h4>
+                </div>
+                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                  {Math.max(...entries.map(e => e.fuel_used)).toFixed(2)} L
+                </p>
+                <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
+                  {new Date(entries.find(e => e.fuel_used === Math.max(...entries.map(e => e.fuel_used)))?.created_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-rose-100 to-rose-50 dark:from-rose-900/50 dark:to-rose-800/30 rounded-xl p-4 border-2 border-rose-300 dark:border-rose-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                  <h4 className="font-semibold text-stone-900 dark:text-white">Highest Price</h4>
+                </div>
+                <p className="text-3xl font-bold text-rose-600 dark:text-rose-400">
+                  ₹{Math.max(...entries.map(e => e.petrol_price)).toFixed(2)}/L
+                </p>
+                <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
+                  {new Date(entries.find(e => e.petrol_price === Math.max(...entries.map(e => e.petrol_price)))?.created_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-teal-100 to-teal-50 dark:from-teal-900/50 dark:to-teal-800/30 rounded-xl p-4 border-2 border-teal-300 dark:border-teal-700">
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                  <h4 className="font-semibold text-stone-900 dark:text-white">Total Entries</h4>
+                </div>
+                <p className="text-3xl font-bold text-teal-600 dark:text-teal-400">
+                  {entries.length}
+                </p>
+                <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
+                  refueling records
+                </p>
+              </div>
+            </>
+          )}
+        </div>
       </Card>
     </motion.div>
   );
