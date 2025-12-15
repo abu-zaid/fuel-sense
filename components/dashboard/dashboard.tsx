@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/ui/animations';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Onboarding, useOnboarding } from '@/components/ui/onboarding';
+import AddVehicleDialog from '@/components/vehicles/add-vehicle-dialog';
 import { Car, Bike } from 'lucide-react';
 import FuelEntryModal from '@/components/entries/fuel-entry-modal';
 import dynamic from 'next/dynamic';
@@ -77,6 +78,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddVehicleDialog, setShowAddVehicleDialog] = useState(false);
   const { showOnboarding, completeOnboarding } = useOnboarding();
 
   useEffect(() => {
@@ -177,7 +179,10 @@ export default function Dashboard() {
             description="Start tracking your fuel consumption by adding your first vehicle. You can add cars, bikes, or any vehicle you want to monitor."
             action={{
               label: 'Add Your First Vehicle',
-              onClick: () => router.push('/profile'),
+              onClick: () => {
+                hapticNavigate();
+                setShowAddVehicleDialog(true);
+              },
             }}
           />
         ) : (
@@ -434,6 +439,16 @@ export default function Dashboard() {
           onEditClose={() => setShowAddModal(false)}
         />
       )}
+
+      {/* Add Vehicle Dialog */}
+      <AddVehicleDialog
+        open={showAddVehicleDialog}
+        onOpenChange={setShowAddVehicleDialog}
+        onSuccess={() => {
+          loadVehicles();
+          setShowAddVehicleDialog(false);
+        }}
+      />
       </div>
     </>
   );
